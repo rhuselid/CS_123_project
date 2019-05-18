@@ -3,8 +3,8 @@ import json
 import nltk
 import re
 
-#nltk.download('stopwords')
-#nltk.download('vader_lexicon')
+nltk.download('stopwords')
+nltk.download('vader_lexicon')
 from nltk.corpus import stopwords
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 stop_words=set(stopwords.words("english"))
