@@ -10,6 +10,9 @@ jsons_path = "/home/student/CS_123_project/test_jsons"
 
 def user_time_series():
 
+	total_line_count = 0
+	geotag_count = 0
+	geotag_list = []
 	for filename in os.listdir(jsons_path):
 		print(filename)
 		file_path = jsons_path + "/" + filename
@@ -19,8 +22,11 @@ def user_time_series():
 			try:
 				lines = test_json.readlines()
 				num_lines = len(lines)
+				total_line_count += num_lines
+
 				for i in range(num_lines):
 					line = json.loads(lines[i])
+					# total_line_count += 1
 					# for l in lines:
 					# 	l = json.loads(l)
 
@@ -35,6 +41,7 @@ def user_time_series():
 
 						## We're going to ignore deleted tweets because it has no data
 						if item == 'delete':
+							total_line_count -= 1
 							continue
 
 						time_stamp = line['created_at']
@@ -42,6 +49,9 @@ def user_time_series():
 						tweet_id = line['id']
 						tweet_text = line['text']
 						geo = line['geo']
+						if line['geo'] != None:
+							geotag_count += 1
+							geotag_list.append(line['geo'])
 
 						if item == 'user':
 
@@ -78,7 +88,11 @@ def user_time_series():
 
 	for user in users:
 		if users[user] > 2:
-			print(user)
+			print(user, users[user])
+
+	print("total lines: ", total_line_count)
+	print("total geotags: ", geotag_count)
+	print(geotag_list)
 
 
 
