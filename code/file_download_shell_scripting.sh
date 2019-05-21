@@ -49,16 +49,16 @@ for m in `seq 1 10`; do
 			wget "$base_url$m$extension$mon$dash$clean_day$tar"
 
 		done
-	else
-		# febuary
-		for day in `seq 1 28`; do
-			if [ $day -lt 10 ]; then
-				clean_day="0$day"
-			else
-				clean_day="day"
-			fi
-			echo "$base_url$m$extension$mon$dash$clean_day$tar"
-			wget "$base_url$m$extension$mon$dash$clean_day$tar"
-		done
-	fi
+	# else
+	# 	# febuary
+	# 	for day in `seq 1 28`; do
+	# 		if [ $day -lt 10 ]; then
+	# 			clean_day="0$day"
+	# 		else
+	# 			clean_day="day"
+	# 		fi
+	# 		echo "$base_url$m$extension$mon$dash$clean_day$tar"
+	# 		wget "$base_url$m$extension$mon$dash$clean_day$tar"
+	# 	done
+	# fi
 done
