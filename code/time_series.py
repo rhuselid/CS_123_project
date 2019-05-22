@@ -4,7 +4,7 @@ import os
 
 
 users = {}
-jsons_path = "/home/student/CS_123_project/test_jsons"
+jsons_path = "/home/student/CS_123_project/jsons_dir"
 
 
 
@@ -72,6 +72,10 @@ def user_time_series():
 					'''
 					DO USER SENTIMENT analysis
 					Compare geography?
+					// can do a lat long shape to google map to visualize where we are
+					// have to do in US
+
+					make time series
 
 					
 					'''
@@ -92,7 +96,7 @@ def user_time_series():
 
 	print("total lines: ", total_line_count)
 	print("total geotags: ", geotag_count)
-	print(geotag_list)
+	# print(geotag_list)
 
 
 
