@@ -54,7 +54,6 @@ def user_time_series():
                         continue
                     if item == 'user':
 
-                        
                         ## 'users' is another dictionary
                         for item2 in line[item]:
                             # print('{} : {} \n'.format(item2, line[item][item2]))
@@ -85,12 +84,15 @@ def user_time_series():
                                     filtered += ' '
                                 filtered += str(word)
                         # print(filtered)
-                        sentiment = SentimentIntensityAnalyzer().polarity_scores(filtered)
-
+                        sentiment = SentimentIntensityAnalyzer().polarity_scores(filtered)['compound']
+                        # if identification == 889963667520925698 or identification == "889963667520925698":
+                        #     print("random user filtered val: ")
+                        #     print(filtered)
                         if identification not in dict_time_series:
-                            dict_time_series[identification] = []
+                            dict_time_series[identification] = [[],[]]
                         
-                        dict_time_series[identification].append(sentiment)
+                        dict_time_series[identification][0].append(sentiment)
+                        dict_time_series[identification][1].append(filtered)
 
 
 
@@ -119,12 +121,24 @@ def user_time_series():
     #     if users[user] > 2:
     #         print(user, users[user])
 
-    # print("total lines: ", total_line_count)
-    # print("total geotags: ", geotag_count)
+    print("total lines: ", total_line_count)
+    print("total geotags: ", geotag_count)
     # print(geotag_list)
 
 
-    print(dict_time_series)
+    # print(dict_time_series.keys())
+    print('users comparison\n')
+    print(len(dict_time_series))
+    print(len(users))
+    print("\n")
+    res = 0
+    for useri in dict_time_series:
+        print(useri,":", dict_time_series[useri])
+        print("\n")
+
+
+
+
 
 
 
