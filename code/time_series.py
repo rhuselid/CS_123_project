@@ -2,12 +2,14 @@ import json
 import os
 import re
 import nltk
+import csv
 
 
 
 users = {}
 dict_time_series = {}
 jsons_path = "/home/student/CS_123_project/jsons_dir"
+bug_dict = {}
 
 WORD_RE = re.compile(r"[\w']+")
 
@@ -73,6 +75,8 @@ def user_time_series():
 
                     geo = line['geo']
                     if line['geo'] != None:
+                        # write_to_json("repeat_tweets.json", {identification: tweet_text})
+                        write_csv([tweet_text, tweet_id], "repeat_tweets.csv")
                         geotag_count += 1
                         geotag_list.append(line['geo'])
 
@@ -135,6 +139,30 @@ def user_time_series():
     for useri in dict_time_series:
         print(useri,":", dict_time_series[useri])
         print("\n")
+
+
+
+def write_to_json(filename, data):
+    with open(filename, "a") as json_file:
+        json.dump(data, json_file)
+
+def write_csv(given_list, filename):
+    '''
+    Takes a list and creates a csv line of that list or appends a new line
+    to an already existing csv file
+
+    Inputs:
+        given_list (list)
+        filename (str): file to store csv
+
+    Returns:
+        None
+    '''
+    with open(filename, "a") as outfile:
+        writer = csv.writer(outfile, delimiter="|")
+        writer.writerow(given_list)
+
+
 
 
 
