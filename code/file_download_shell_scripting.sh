@@ -34,7 +34,7 @@ for m in `seq 1 10`; do
 				mon=$m
 				# -10 has no leading 0
 			fi
-			echo "$base_url$mon$extension$mon$dash$clean_day$tar"
+			echo "$base_url$mon$extension$mon$dassh$clean_day$tar"
 			wget "$base_url$mon$extension$mon$dash$clean_day$tar"
 		done
 
@@ -49,6 +49,7 @@ for m in `seq 1 10`; do
 			wget "$base_url$m$extension$mon$dash$clean_day$tar"
 
 		done
+	fi
 	# else
 	# 	# febuary
 	# 	for day in `seq 1 28`; do
