@@ -3,6 +3,7 @@ import os
 import re
 import nltk
 import csv
+import datetime
 
 
 
@@ -93,10 +94,11 @@ def user_time_series():
                         #     print("random user filtered val: ")
                         #     print(filtered)
                         if identification not in dict_time_series:
-                            dict_time_series[identification] = [[],[]]
+                            dict_time_series[identification] = [[],[],[]]
                         
                         dict_time_series[identification][0].append(sentiment)
                         dict_time_series[identification][1].append(filtered)
+                        dict_time_series[identification][2].append(time_stamp)
 
 
 
@@ -137,7 +139,7 @@ def user_time_series():
     print("\n")
     res = 0
     for useri in dict_time_series:
-        print(useri,":", dict_time_series[useri])
+        print(useri,":", dict_time_series[useri][2])
         print("\n")
 
 
@@ -162,6 +164,46 @@ def write_csv(given_list, filename):
         writer = csv.writer(outfile, delimiter="|")
         writer.writerow(given_list)
 
+
+def user_to_user_comovement(user1_sentimentlist, user2_sentimentlist, time_differential):
+    '''
+    Calculate the covariance or comovement between two given users' 
+    tweet sentiments over time. Tweets must be within time_differential time apart.
+    '''
+
+    d = datetime.strptime(test, '%a %b %d %H:%M:%S %z %Y')
+
+    return
+
+def significant_change_in_sentiment(user_sentimentlist):
+    '''
+    MIght use a function like this to return a significant swing in sentiment.
+    NOt sure of the scientific value of such a function though....
+    Time intervals are an issue. 
+    '''
+
+def extreme_sentiment_bool(list_of_users_sentimentlists, time_frame):
+    '''
+    Something like this might be interesting to see if any certain day, 
+    hour, month had a significant portion of a sample population tweet negatively
+    or positively. COUld be cool to back up the concept that people in new york
+    at midnight NYE might feel much more elated than people in california at 9pm
+    even though its the same time in the world? Maybe people feel worse after national
+    tragedies, etc. 
+
+    If there are more than one tweet per time frame, then we average the tweets sentiments.
+    Or consider both? idek
+
+    Returns:
+        True or false for a significant portion of population feeling extreme sentiment
+        in a given time frame (day, month, hour)
+
+    '''
+
+'''
+Potential Idea: does day of the week or time affect sentiment? SImple OLS
+
+'''
 
 
 
