@@ -171,9 +171,55 @@ def user_to_user_comovement(user1_sentimentlist, user2_sentimentlist, time_diffe
     tweet sentiments over time. Tweets must be within time_differential time apart.
     '''
 
+    ## Have to make time pairs because covariance needs equal sample size and
+    ## if there are more than one data points between users, then the pair 
+    
+    ## maybe sort the time series? not sure what is the best method for this...
+    time_pairs = []
     d = datetime.strptime(test, '%a %b %d %H:%M:%S %z %Y')
 
     return
+
+def average_all_tweet_time_neighbors(user_sentimentlist, time_stamps, time_differential, t0_index):
+    '''
+    Given a chronologicla list of sentiment scores given time stamps (also sorted),
+    return the average of all sentiments in the neighborhood.
+
+    SInce the time series is in order and we are assuming sorted sentiment list of tweets,
+    only need to check right neighbors while iterating through
+
+    t0_index: index in sortd time list of time of interest
+
+    time differential has to be in timestamp format
+
+    need to do: 
+
+    convert all date times to time stamps..
+
+    '''
+
+
+
+    t_right = datetime.datetime.timestamp(time_stamps[t0_index]) + time_differential
+    total = 0
+    num_neigbors = 1
+
+    for t_index, time in enumerate(time_stamps[t0_index:]):
+        time = datetime.datetime.timestamp(time)
+
+        if t_right > time:
+            total += time
+            num_neigbors += 1
+    ## datetime.datetime.fromtimestamp(timestampitem, tz=datetime.timezone.utc)
+
+
+    return total/num_neigbors, num_neigbors
+
+
+
+
+
+
 
 def significant_change_in_sentiment(user_sentimentlist):
     '''
