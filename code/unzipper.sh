@@ -7,6 +7,6 @@ find -type f -name "*.json.bz2" -exec bunzip2 *.bz2 {} \;
 
 for i in file1 file2 file3 file4 ; do cat "$i" >> output && rm "$i" || break ; done
 
-find . -type f -exec cat {} + > all.json;
+find . -type f -exec cat {} + > all.json
 
 
