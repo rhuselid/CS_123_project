@@ -7,12 +7,14 @@ find -type f -name "*.json.bz2" -exec bunzip2 *.bz2 {} \;
 
 # for i in ($find . -type f ! -name "all.json") ; do cat "$i" >> all.json && rm "$i" || break ; done
 # find . -type f ! -name "all.json" -exec cat {} + ; -exec rm {} \;
-
 ## find . -type f -exec cat {} + > all.json
-find . -type f -and ! -name "all.json" -and -name "*.json" -exec cat {} + > all.json
-bash -O extglob
-rm -- !(all.json)
 
+# Concatenates all .jsons into a single json: all.json
+bash -O extglob
+find . -type f -and ! -name "all.json" -and -name "*.json" -exec cat {} + > all.json
+
+# Clears all directories, leaving the file all.json
+rm -r */ 
 
 
 
