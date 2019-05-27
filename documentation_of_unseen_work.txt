@@ -1,0 +1,8 @@
+
+
+Tweets Download Speed
+The servers that we are downloading twitter data from we very slow so implimenting the bash script to get these files required using the screen command and a VM with a large harddrive in order the let this run for 30+ hours. Then these tar files had to be compiled into a single omnibus file through another bash script (at which point the file was added to a google cloud bucket). 
+
+Weather Data Misformating
+Data from the NOAA was very poorly formatted and required the dataset to be broken up and remerged in order for the data to be meaningful. sqlite3 could not handle a dataset of this size so another database library had to be used.
+

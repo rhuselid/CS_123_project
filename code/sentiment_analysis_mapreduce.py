@@ -1,5 +1,3 @@
-!sudo pip3 install numpy
-
 from mrjob.job import MRJob
 import json
 import nltk
@@ -51,7 +49,6 @@ class AnalyzeSentiment(MRJob):
 
             lat = line['geo']['coordinates'][0]
             lon = line['geo']['coordinates'][1]
-            print(lat, lon)
             
             if (bottom < lat and top > lat) and (left < lon and right > lon):
                 if 'text' in line.keys():
