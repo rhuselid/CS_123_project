@@ -3,7 +3,24 @@ import os
 import re
 import nltk
 import csv
-from datetime import datetime
+from datetime import datetime, timedelta
+
+## Start / End date for data: 1/1/18 - 10/31/18
+
+def create_date_indexer():
+    '''
+    Create indexer. WIll allow us to map which days to include
+    when we compare betas.
+    '''
+    d = {}
+
+    start = datetime.strptime("01-06-2018", "%d-%m-%Y")
+    end = datetime.strptime("31-10-2018", "%d-%m-%Y")
+
+    for x in range(0,(end-start).days + 1):
+        d[start + timedelta(days=x)] = x
+
+    return d
 
 
 
@@ -233,7 +250,9 @@ def average_all_tweet_time_neighbors(user_sentimentlist, time_differential, t0_i
 def generate_datetimes(start, end, time_delta):
     return
 
+def create_national_average_sentiment(users):
 
+    return 
 
 
 
