@@ -145,6 +145,7 @@ def user_time_series():
     for useri in dict_time_series:
         print(useri,":", dict_time_series[useri][0])
         print("\n")
+    return dict_time_series
 
 
 
@@ -209,19 +210,19 @@ def average_all_tweet_time_neighbors(user_sentimentlist, time_differential, t0_i
 
 
     # t_right = datetime.timestamp(time_stamps[t0_index]) + time_differential
-    t_right = time_stamps[t0_index] + time_differential
+    t_right = user_sentimentlist[t0_index][1] + time_differential
     print(t_right)
     print("____")
     total_sentiment = 0
     num_neigbors = 0
 
-    for t_index, time in enumerate(time_stamps[t0_index:]):
+    for st_index, st_tuple in enumerate(user_sentimentlist[t0_index:]):
         # print(time)
         # time = datetime.timestamp(time)
 
-        if t_right > time:
+        if t_right > st_tuple[1]:
             print()
-            total_sentiment += user_sentimentlist[t0_index + t_index]
+            total_sentiment += st_tuple[0]
             print(total_sentiment)
             num_neigbors += 1
     ## datetime.datetime.fromtimestamp(timestampitem, tz=datetime.timezone.utc)
