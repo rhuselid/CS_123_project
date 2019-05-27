@@ -45,8 +45,8 @@ for m in `seq 1 10`; do
 			else
 				clean_day="$day"
 			fi
-			echo "$base_url$m$extension$mon$dash$clean_day$tar"
-			wget "$base_url$m$extension$mon$dash$clean_day$tar"
+			echo "$base_url0$m$extension0$m$dash$clean_day$tar"
+			wget "$base_url0$m$extension0$n$dash$clean_day$tar"
 
 		done
 	fi
