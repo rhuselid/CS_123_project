@@ -3,7 +3,7 @@ import os
 import re
 import nltk
 import csv
-import datetime
+from datetime import datetime
 
 
 
@@ -69,7 +69,11 @@ def user_time_series():
 
                         users[identification] = users.get(identification, 0) + 1
 
-                    time_stamp = line['created_at']
+                    time_stamp = datetime.strptime(line['created_at'], '%a %b %d %H:%M:%S %z %Y')
+                    
+                    ## Convert time_stamp to unix so it is comparable with other times
+                    time_stamp = datetime.timestamp(time_stamp)
+
                     place = line['place']
                     tweet_id = line['id']
                     tweet_text = line['text']
@@ -88,17 +92,17 @@ def user_time_series():
                                 if filtered:
                                     filtered += ' '
                                 filtered += str(word)
-                        # print(filtered)
                         sentiment = SentimentIntensityAnalyzer().polarity_scores(filtered)['compound']
                         # if identification == 889963667520925698 or identification == "889963667520925698":
                         #     print("random user filtered val: ")
                         #     print(filtered)
                         if identification not in dict_time_series:
-                            dict_time_series[identification] = [[],[],[]]
+                            dict_time_series[identification] = [[],[]]
                         
-                        dict_time_series[identification][0].append(sentiment)
+                        # dict_time_series[identification][0].append(sentiment)
+                        dict_time_series[identification][0].append((sentiment, time_stamp))
                         dict_time_series[identification][1].append(filtered)
-                        dict_time_series[identification][2].append(time_stamp)
+                        # dict_time_series[identification][2].append(time_stamp)
 
 
 
@@ -139,7 +143,7 @@ def user_time_series():
     print("\n")
     res = 0
     for useri in dict_time_series:
-        print(useri,":", dict_time_series[useri][2])
+        print(useri,":", dict_time_series[useri][0])
         print("\n")
 
 
@@ -175,13 +179,17 @@ def user_to_user_comovement(user1_sentimentlist, user2_sentimentlist, time_diffe
     ## if there are more than one data points between users, then the pair 
     
     ## maybe sort the time series? not sure what is the best method for this...
+    user1_sentimentlist.sort(key=lambda x: x[1])
+    user2_sentimentlist.sort(key=lambda x: x[1])
     time_pairs = []
     d = datetime.strptime(test, '%a %b %d %H:%M:%S %z %Y')
 
     return
 
-def average_all_tweet_time_neighbors(user_sentimentlist, time_stamps, time_differential, t0_index):
+def average_all_tweet_time_neighbors(user_sentimentlist, time_differential, t0_index):
     '''
+    def average_all_tweet_time_neighbors(user_sentimentlist, time_stamps, time_differential, t0_index):
+
     Given a chronologicla list of sentiment scores given time stamps (also sorted),
     return the average of all sentiments in the neighborhood.
 
@@ -190,7 +198,7 @@ def average_all_tweet_time_neighbors(user_sentimentlist, time_stamps, time_diffe
 
     t0_index: index in sortd time list of time of interest
 
-    time differential has to be in timestamp format
+    time differential has to be in seconds?
 
     need to do: 
 
@@ -200,20 +208,31 @@ def average_all_tweet_time_neighbors(user_sentimentlist, time_stamps, time_diffe
 
 
 
-    t_right = datetime.datetime.timestamp(time_stamps[t0_index]) + time_differential
-    total = 0
-    num_neigbors = 1
+    # t_right = datetime.timestamp(time_stamps[t0_index]) + time_differential
+    t_right = time_stamps[t0_index] + time_differential
+    print(t_right)
+    print("____")
+    total_sentiment = 0
+    num_neigbors = 0
 
     for t_index, time in enumerate(time_stamps[t0_index:]):
-        time = datetime.datetime.timestamp(time)
+        # print(time)
+        # time = datetime.timestamp(time)
 
         if t_right > time:
-            total += time
+            print()
+            total_sentiment += user_sentimentlist[t0_index + t_index]
+            print(total_sentiment)
             num_neigbors += 1
     ## datetime.datetime.fromtimestamp(timestampitem, tz=datetime.timezone.utc)
 
 
-    return total/num_neigbors, num_neigbors
+    return total_sentiment/num_neigbors, num_neigbors
+
+def generate_datetimes(start, end, time_delta):
+    return
+
+
 
 
 
