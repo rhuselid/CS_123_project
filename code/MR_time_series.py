@@ -4,6 +4,7 @@ import nltk
 import re
 import time_series as ts
 from datetime import datetime, timedelta
+import random
 
 nltk.download('stopwords')
 nltk.download('vader_lexicon')
@@ -19,6 +20,7 @@ class TimeSeries(MRJob):
     def mapper(self, _, line):
         line = json.loads(line)
         filtered = ''
+        print("past json")
         
         if ts.is_tweet_of_interest(line):
             user_id = line['user']['id']
@@ -26,6 +28,7 @@ class TimeSeries(MRJob):
             time_stamp = datetime.strptime(line['created_at'], '%a %b %d %H:%M:%S %z %Y')
             time_stamp = datetime.timestamp(time_stamp)
             tweet_text = line['text']
+            print("about to score sentiments")
             
             for word in WORD_RE.findall(tweet_text):
                 if word not in stop_words:
@@ -33,8 +36,12 @@ class TimeSeries(MRJob):
                         filtered += ' '
                     filtered += str(word)
             sentiment = SentimentIntensityAnalyzer().polarity_scores(filtered)['compound']
-            
+            print("about to yield")
             yield user_id, (tweet_id, sentiment)
+
+        else:
+            ## Problem with my if statement so yield something of same structure
+            yield random.randint(0,12), (1, random.randint(0,234))
 
 
     # def combiner(self, location, sentiment):
@@ -42,9 +49,11 @@ class TimeSeries(MRJob):
 
 
     def reducer(self, users, tweets_sentiments):
+        print("arrived to reducer")
 
         ## No repeats
         set_tweets_sentiments = set(tweets_sentiments)
+        print(set_tweets_sentiments)
 
         sentiments = [x[1] for x in set_tweets_sentiments]
 
