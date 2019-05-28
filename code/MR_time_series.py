@@ -52,14 +52,14 @@ class TimeSeries(MRJob):
         print("arrived to reducer")
 
         ## No repeats
-        set_tweets_sentiments = set(tweets_sentiments)
-        print(set_tweets_sentiments)
+        set_tweets_sentiments = list(set(tweets_sentiments))
+        # print(set_tweets_sentiments)
 
         sentiments = [x[1] for x in set_tweets_sentiments]
 
         ## STILL HAVE TO ADD THE TIME TO EACH SENTIMENT
 
-        yield users, sentiments
+        yield users, set_tweets_sentiments
 
 
 if __name__ == '__main__':
