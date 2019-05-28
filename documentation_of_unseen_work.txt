@@ -5,7 +5,9 @@ The servers that we are downloading twitter data from we very slow so implimenti
 
 The process had to be repeated twice since unzipping the files increased the data's harddrive footprint, thus a 4 TB VM had to be rented to fit the data during all of the intermediary steps.
 
+Opening these tar files and then unzipping each of the json files within them took multiple days because of the size of the dataset.
+
 
 Weather Data Misformating
-Data from the NOAA was very poorly formatted and required the dataset to be broken up and remerged in order for the data to be meaningful. sqlite3 could not handle a dataset of this size so another database library had to be used.
+Data from the NOAA was very poorly formatted and required the dataset to be broken up and remerged in order for the data to be meaningful. sqlite3 could not handle a dataset of this size so another database library had to be used, but mysql was also not ideally situated to deal with a dataset of this size (it caused the VM to continually freeze).
 
