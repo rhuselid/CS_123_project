@@ -4,8 +4,11 @@ from mrjob.job import MRJob
 from datetime import datetime
 
 class LinearRegression(MRJob):
+	# this mapreduce code is written to run a multiple linear regression in parallel 
+	# and is intended to be run on a cluster.
 
     def mapper(self, _, line):
+    	line = json.loads(line)
         # read the variables from the line
         # y = line['sentiment'] # psuedo code
 		temp = line['temp']
@@ -14,9 +17,10 @@ class LinearRegression(MRJob):
         relative_change = temp - season_avg
 
         # if type is float then the time is missing
-        line = json.loads(line)
+        
         print(type(line))
         print(line['created_at'][0:19])
+        # this has to be continued (check if all are formatted the same)
         line['created_at'] = datetime.strptime(line['created_at'][0:19], "%a %b ")
         print(line['created_at'])
 

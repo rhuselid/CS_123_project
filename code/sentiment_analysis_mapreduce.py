@@ -29,40 +29,41 @@ stop_words=set(stopwords.words("english"))
 
 # looking for stopwords is more efficient
 
-# 
-
 WORD_RE = re.compile(r"[\w']+")
 
 class AnalyzeSentiment(MRJob):
+    # the purpose of this code is to take a json and read is to reduce a large dataset of 
+    # tweets into information about sentiment and attached to geo-coordinates.
 
     def mapper(self, _, line):
-        #print(line)
         line = json.loads(line)
-        #print(line.keys())
-        #time = line['timestamp_ms']
-        if ('geo' in line.keys()) and (line['geo']):
-            top = 49.3457868 # north lat
-            left = -124.7844079 # west long
-            right = -66.9513812 # east long
-            bottom =  24.7433195 # south lat
-            # above continental us borders pulled from: https://gist.github.com/jsundram/1251783
 
-            lat = line['geo']['coordinates'][0]
-            lon = line['geo']['coordinates'][1]
-            
-            if (bottom < lat and top > lat) and (left < lon and right > lon):
-                if 'text' in line.keys():
-                    text = line['text']
-                    filtered = ''
-                    for word in WORD_RE.findall(text):
-                        if word not in stop_words:
-                            if filtered:
-                                filtered += ' '
-                            filtered += str(word)
-                    print(filtered)
-                    sentiment = SentimentIntensityAnalyzer().polarity_scores(filtered)#['pos']
-                    
-                    yield [lat, lon], sentiment
+        if (line['lang']) and (line['lang'] == 'en'):
+            # makes sure that the language is English (analysis is resticted to English only)
+
+            if ('geo' in line.keys()) and (line['geo']):
+                top = 49.3457868 # north lat
+                left = -124.7844079 # west long
+                right = -66.9513812 # east long
+                bottom =  24.7433195 # south lat
+                # makes sure that the tweet was from the continental US (which is where our other data 
+                # source is from). Borders coordinates pulled from: https://gist.github.com/jsundram/1251783
+
+                lat = line['geo']['coordinates'][0]
+                lon = line['geo']['coordinates'][1]
+                
+                if (bottom < lat and top > lat) and (left < lon and right > lon):
+                    if 'text' in line.keys():
+                        text = line['text']
+                        filtered = ''
+                        for word in WORD_RE.findall(text):
+                            if word not in stop_words:
+                                if filtered:
+                                    filtered += ' '
+                                filtered += str(word)
+                        sentiment = SentimentIntensityAnalyzer().polarity_scores(filtered)
+                        
+                        yield [lat, lon], sentiment
 
 
     def combiner(self, location, sentiment):
