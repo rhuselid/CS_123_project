@@ -36,8 +36,8 @@ class TimeSeries(MRJob):
                     filtered += str(word)
             sentiment = SentimentIntensityAnalyzer().polarity_scores(filtered)['compound']
             print("about to yield")
-            value_holder = str(tweet_id) + '|' + str(sentiment)  
-            yield user_id, value_holder
+            value_string = str(tweet_id) + '|' + str(sentiment) + '|' + str(time_stamp)
+            yield user_id, value_string
 
         # else:
         #     ## Problem with my if statement so yield something of same structure
@@ -52,7 +52,8 @@ class TimeSeries(MRJob):
         print("arrived to reducer")
 
         ## No repeats
-        set_tweets_sentiments = [set(tweets_sentiments)]
+        set_tweets_sentiments = list(set(tweets_sentiments))
+        # print(set_tweets_sentiments)
         # print(set_tweets_sentiments)
 
         # sentiments = [x[1] for x in set_tweets_sentiments]
