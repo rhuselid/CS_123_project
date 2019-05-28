@@ -55,9 +55,9 @@ def is_tweet_of_interest(line):
     lon = line['geo']['coordinates'][1]
     print('im in tweet of interest')
 
-    if not ((south_border < lat and lat < north_border) and
-            (west_border < lon and lon < east_border)):
-        return False
+    # if not ((south_border < lat and lat < north_border) and
+    #         (west_border < lon and lon < east_border)):
+    #     return False
 
     print('still here')
 

@@ -39,9 +39,9 @@ class TimeSeries(MRJob):
             value_holder = str(tweet_id) + '|' + str(sentiment)  
             yield user_id, value_holder
 
-        else:
-            ## Problem with my if statement so yield something of same structure
-            yield random.randint(0,12), (1, random.randint(0,234))
+        # else:
+        #     ## Problem with my if statement so yield something of same structure
+        #     yield random.randint(0,12), random.randint(0,234)
 
 
     # def combiner(self, location, sentiment):
