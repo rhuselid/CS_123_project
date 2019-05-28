@@ -20,7 +20,6 @@ class TimeSeries(MRJob):
     def mapper(self, _, line):
         line = json.loads(line)
         filtered = ''
-        print("past json")
         
         if ts.is_tweet_of_interest(line):
             user_id = line['user']['id']
@@ -37,7 +36,8 @@ class TimeSeries(MRJob):
                     filtered += str(word)
             sentiment = SentimentIntensityAnalyzer().polarity_scores(filtered)['compound']
             print("about to yield")
-            yield user_id, (tweet_id, sentiment)
+            value_holder = str(tweet_id) + '|' + str(sentiment)  
+            yield user_id, value_holder
 
         else:
             ## Problem with my if statement so yield something of same structure
@@ -52,10 +52,10 @@ class TimeSeries(MRJob):
         print("arrived to reducer")
 
         ## No repeats
-        set_tweets_sentiments = list(set(tweets_sentiments))
+        set_tweets_sentiments = [set(tweets_sentiments)]
         # print(set_tweets_sentiments)
 
-        sentiments = [x[1] for x in set_tweets_sentiments]
+        # sentiments = [x[1] for x in set_tweets_sentiments]
 
         ## STILL HAVE TO ADD THE TIME TO EACH SENTIMENT
 
