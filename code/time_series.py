@@ -22,6 +22,50 @@ def create_date_indexer():
 
     return d
 
+north_border = 49.3457868 # north lat
+west_border = -124.7844079 # west long
+east_border = -66.9513812 # east long
+south_border =  24.7433195 # south lat
+# above continental us borders pulled from: https://gist.github.com/jsundram/1251783
+
+
+def is_tweet_of_interest(line):
+    '''
+    Skip tweet if the tweet given does not meet criteria.
+
+    line: tweet dictionary already loaded from json
+
+    More elegant way to iterate through files:
+    with open('30.json') as test_json:
+   ...:     for line in test_json:
+   ...:         line = json.loads(line)
+   ...:         if 'delete' in line:
+   ...:             print(i)
+   ...:         i += 1
+   ...:         holder2.append(line)
+    '''
+
+    if 'delete' in line:
+        return False
+
+    if not line['geo']:
+        return False
+
+    lat = line['geo']['coordinates'][0]
+    lon = line['geo']['coordinates'][1]
+    print('im in tweet of interest')
+
+    if not ((south_border < lat and lat < north_border) and
+            (west_border < lon and lon < east_border)):
+        return False
+
+    print('still here')
+
+    ## How to deal with repeat tweets though?
+
+    return True
+
+
 
 
 users = {}
@@ -98,7 +142,7 @@ def user_time_series():
                     geo = line['geo']
                     if line['geo'] != None:
                         # write_to_json("repeat_tweets.json", {identification: tweet_text})
-                        write_csv([tweet_text, tweet_id], "repeat_tweets.csv")
+                        # write_csv([tweet_text, tweet_id], "repeat_tweets.csv")
                         geotag_count += 1
                         geotag_list.append(line['geo'])
 
