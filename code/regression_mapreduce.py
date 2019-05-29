@@ -1,22 +1,37 @@
 import json
 import numpy as np
+import linalg as 
 from mrjob.job import MRJob
 from datetime import datetime
+
+# inspiration on how to approach this project comes from:
+# https://github.com/AmazaspShumik/MapReduce-Machine-Learning/
+#        blob/master/Linear%20Regression%20MapReduce/LinearRegressionTS.py
 
 class LinearRegression(MRJob):
     # this mapreduce code is written to run a multiple linear regression in parallel 
     # and is intended to be run on a cluster.
 
+    def __init__(self):
+        # this initialization draws from comes from the above link 
+        self.n = 0
+        self.x_transpose_y = np.zeros(6)
+        self.x_transpose_x = np.zeros([6,6]) 
+        # creates a 6x6 empty matrix to update
+        
     def mapper(self, _, line):
         line = json.loads(line)
-        # read the variables from the line
-        # y = line['sentiment'] # psuedo code
+
+        # dependent variable
+        sentiment = line['sentiment'] # psuedo code
+
+        # independent variables
+        constant = 1
         temp = line['temp']
         season_avg = line['season_avg']
-
         relative_change = temp - season_avg
 
-        # if type is float then the time is missing
+        # if type is float, then the time is missing
         
         print(type(line))
         print(line['created_at'][0:19])
@@ -59,19 +74,65 @@ class LinearRegression(MRJob):
         if line['favorite_count']:
             interactions += int(line['favorite_count'])
 
-        X = np.array([temp, relative_change, morning, afternoon, evening, interactions])
+        X = np.array([constant, temp, relative_change, morning, afternoon, evening, interactions])
         Y = np.array([sentiment])
 
-        yield X, Y
+        x_transpose_x = np.outer(X, X)  # 7 x 7 matrix 
+        x_transpose_y = X*Y             # 1 x 7 array
+
+        # self.x_transpose_x += np.outer(X, X)
+        # self.x_transpose_y += x*y
+        # these lines iteratively update these matrices
+        # is this thread safe to update a attribute (I don't think so)
+
+        yield 1, list(x_transpose_x, x_transpose_y)
 
 
-    def reducer(self, X, Y):
-        yield x, sentiment
+    def reducer(self, _, matrices):
+        sample_size = 0
+        x_transpose_x = np.zeros([7,7]) 
+        x_transpose_y = np.zeros(7)
+
+        for mat in matrices:
+            sample_size += 1
+            x_transpose_x += mat[0] 
+            x_transpose_y += mat[1]
+
+        yield 1, list(x_transpose_x, x_transpose_y, sample_size)
 
 
-    def combiner(self, x, sentiment):
-        yield location, list(sentiment)
+    def combiner(self, num_obs, values):
+        sample_size = 0
+        x_transpose_x = np.zeros([7,7]) 
+        x_transpose_y = np.zeros(7)
 
+        for val in values
+            x_transpose_x += values[0] 
+            x_transpose_y += values[1]
+            sample_size += values[2]
+
+        # now we need to solve for beta (i.e. the coefficients of the variables)
+        # beta = (X′X)−1X′Y
+
+        beta = np.linalg.inv(x_transpose_x) @ x_transpose_y
+
+        print()
+        print('coefficients derived from multiple linear regression')
+        print('====================================================')
+        print()
+
+        print('intercept:                      ', beta[0])
+        print('temperature                     ', beta[1])
+        print('relative change in temperature  ', beta[2])
+        print('tweet was in morning            ', beta[3])
+        print('tweet was in afternoon          ', beta[4])
+        print('tweet was in evening            ', beta[5])
+        print('number of tweet interactions    ', beta[6])
+
+        print()
+        print('====================================================')
+
+        yield 'hurray it worked!', betas
 
 if __name__ == '__main__':
   LinearRegression.run()
