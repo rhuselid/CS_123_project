@@ -12,12 +12,12 @@ class LinearRegression(MRJob):
     # this mapreduce code is written to run a multiple linear regression in parallel 
     # and is intended to be run on a cluster.
 
-    def __init__(self):
-        # this initialization draws from comes from the above link 
-        self.n = 0
-        self.x_transpose_y = np.zeros(6)
-        self.x_transpose_x = np.zeros([6,6]) 
-        # creates a 6x6 empty matrix to update
+    # def __init__(self):
+    #     # this initialization draws from comes from the above link 
+    #     self.n = 0
+    #     self.x_transpose_y = np.zeros(6)
+    #     self.x_transpose_x = np.zeros([6,6]) 
+    #     # creates a 6x6 empty matrix to update
         
     def mapper(self, _, line):
         line = json.loads(line)
