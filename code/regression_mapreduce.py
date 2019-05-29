@@ -4,16 +4,16 @@ from mrjob.job import MRJob
 from datetime import datetime
 
 class LinearRegression(MRJob):
-	# this mapreduce code is written to run a multiple linear regression in parallel 
-	# and is intended to be run on a cluster.
+    # this mapreduce code is written to run a multiple linear regression in parallel 
+    # and is intended to be run on a cluster.
 
     def mapper(self, _, line):
-    	line = json.loads(line)
+        line = json.loads(line)
         # read the variables from the line
         # y = line['sentiment'] # psuedo code
-		temp = line['temp']
-        # season = line['season']
-        # season_avg = line['season_avg']
+        temp = line['temp']
+        season_avg = line['season_avg']
+
         relative_change = temp - season_avg
 
         # if type is float then the time is missing
@@ -51,20 +51,23 @@ class LinearRegression(MRJob):
         # number of interactions (this may capture if popular tweets are critical of someone else)
         interactions = 0
         if line['reply_count']:
-        	interactions += int(line['reply_count'])
+            interactions += int(line['reply_count'])
 
         if line['retweet_count']:
-        	interactions += int(line['retweet_count'])
+            interactions += int(line['retweet_count'])
 
         if line['favorite_count']:
-        	interactions += int(line['favorite_count'])
+            interactions += int(line['favorite_count'])
 
         X = np.array([temp, relative_change, morning, afternoon, evening, interactions])
         Y = np.array([sentiment])
-        yield 1, 2
 
-    def reducer(self, x, sentiment):
+        yield X, Y
+
+
+    def reducer(self, X, Y):
         yield x, sentiment
+
 
     def combiner(self, x, sentiment):
         yield location, list(sentiment)
