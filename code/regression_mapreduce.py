@@ -22,6 +22,7 @@ class LinearRegression(MRJob):
         
     def mapper(self, _, line):
         line = line.split(',')
+        print('heres line:')
         print(line)
         # constant, temp, relative_change, morning, afternoon, evening, interactions = 1, int(line[1]), int(line[2]), int(line[3]), int(line[4]), int(line[5]), int(line[6])
         constant, temp, relative_change, morning, afternoon, evening, interactions = int(1 + random.randint(1,101)), int(1 + random.randint(1,101)), int(1 + random.randint(1,101)),int(1 + random.randint(1,101)), int(1 + random.randint(1,101)),int(1 + random.randint(1,101)), int(1 + random.randint(1,101))
@@ -82,6 +83,8 @@ class LinearRegression(MRJob):
 
         X = np.array([constant, temp, relative_change, morning, afternoon, evening, interactions])
         Y = np.array([sentiment])
+        print('heres X AND Y')
+        print(X)
         print(Y)
 
         x_transpose_x = np.outer(X, X)  # 7 x 7 matrix 
@@ -95,35 +98,6 @@ class LinearRegression(MRJob):
         yield None, ('xty', x_transpose_y.tolist())
 
         #yield 1, list((x_transpose_x.tolist(), x_transpose_y.tolist()))
-
-
-    def reducer(self, name, matrices):
-        print('reducing')
-        sample_size = 0
-        x_transpose_x = np.zeros([7,7]) 
-        x_transpose_y = np.zeros(7)
-
-        for mat in matrices:
-            sample_size += 1
-            
-            if mat[0] == 'xty':
-                x_transpose_y += np.array(mat[1])
-            elif mat[0] == 'xtx':
-                x_transpose_x += np.array(mat[1])
-            
-            # arr_xtx = np.array(mat[0])
-            # arr_xty = np.array(mat[1])
-            # sample_size += 1
-            # x_transpose_x += arr_xtx
-            # x_transpose_y += arr_xty
-
-        # print(list((x_transpose_x.tolist(), x_transpose_y.tolist(), sample_size)))
-        # yield 1, list((x_transpose_x.tolist(), x_transpose_y.tolist(), sample_size))
-
-        yield None, ('xtx', x_transpose_x.tolist())
-        yield None, ('xty', x_transpose_y.tolist())
-        yield None, ('sample_size', sample_size)
-
 
     def combiner(self, num_obs, values):
         print('combining')
@@ -183,6 +157,35 @@ class LinearRegression(MRJob):
         f.close()
 
         yield 'beta values: ', beta.tolist()
+
+    def reducer(self, name, matrices):
+        print('reducing')
+        sample_size = 0
+        x_transpose_x = np.zeros([7,7]) 
+        x_transpose_y = np.zeros(7)
+
+        for mat in matrices:
+            sample_size += 1
+            
+            if mat[0] == 'xty':
+                x_transpose_y += np.array(mat[1])
+            elif mat[0] == 'xtx':
+                x_transpose_x += np.array(mat[1])
+            
+            # arr_xtx = np.array(mat[0])
+            # arr_xty = np.array(mat[1])
+            # sample_size += 1
+            # x_transpose_x += arr_xtx
+            # x_transpose_y += arr_xty
+
+        # print(list((x_transpose_x.tolist(), x_transpose_y.tolist(), sample_size)))
+        # yield 1, list((x_transpose_x.tolist(), x_transpose_y.tolist(), sample_size))
+
+        yield None, ('xtx', x_transpose_x.tolist())
+        yield None, ('xty', x_transpose_y.tolist())
+        yield None, ('sample_size', sample_size)
+
+
 
 if __name__ == '__main__':
   LinearRegression.run()
