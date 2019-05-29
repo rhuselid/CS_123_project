@@ -5,7 +5,7 @@ from datetime import datetime
 import random
 import csv
 
-# inspiration on how to approach this project comes from:
+# inspiration on how to approach this project comes from (specifically in the yield structure):
 # https://github.com/AmazaspShumik/MapReduce-Machine-Learning/
 #        blob/master/Linear%20Regression%20MapReduce/LinearRegressionTS.py
 
@@ -21,12 +21,16 @@ class LinearRegression(MRJob):
     #     # creates a 6x6 empty matrix to update
         
     def mapper(self, _, line):
+
+        # toy dataset to test the regression output 
         line = line.split(',')
+        constant, temp, relative_change, morning, afternoon, evening, interactions = int(1 + random.randint(1,101)), int(1 + random.randint(1,101)), int(1 + random.randint(1,101)),int(1 + random.randint(1,101)), int(1 + random.randint(1,101)),int(1 + random.randint(1,101)), int(1 + random.randint(1,101))
+        sentiment = int(1 + random.randint(1,101))
+
         # print('heres line:')
         # print(line)
         # constant, temp, relative_change, morning, afternoon, evening, interactions = 1, int(line[1]), int(line[2]), int(line[3]), int(line[4]), int(line[5]), int(line[6])
-        constant, temp, relative_change, morning, afternoon, evening, interactions = int(1 + random.randint(1,101)), int(1 + random.randint(1,101)), int(1 + random.randint(1,101)),int(1 + random.randint(1,101)), int(1 + random.randint(1,101)),int(1 + random.randint(1,101)), int(1 + random.randint(1,101))
-        sentiment = int(1 + random.randint(1,101))
+        
         # line = json.loads(line)
 
         # # dependent variable
@@ -88,7 +92,8 @@ class LinearRegression(MRJob):
         # print(Y)
 
         x_transpose_x = np.outer(X, X)  # 7 x 7 matrix 
-        x_transpose_y = X * Y             # 1 x 7 array
+        x_transpose_y = X.T * Y         # 1 x 7 array
+
         # self.x_transpose_x += np.outer(X, X)
         # self.x_transpose_y += x*y
         # these lines iteratively update these matrices
@@ -164,10 +169,11 @@ class LinearRegression(MRJob):
 
         print()
         print('coefficients derived from multiple linear regression')
+        print('interpretation: one unit increase in x impact on sentiment')
         print('====================================================')
         print()
 
-        print('intercept:                      ', beta[0])
+        print('intercept                       ', beta[0])
         print('temperature                     ', beta[1])
         print('relative change in temperature  ', beta[2])
         print('tweet was in morning            ', beta[3])
@@ -178,14 +184,14 @@ class LinearRegression(MRJob):
         print()
         print('====================================================')
 
-        with open('beta_results.csv', 'w') as f:
-            # row = beta.tolist()
-            # print(row)
-            # writer = csv.writer(f)
-            # writer.writerow(row)
-            f.write(str(beta))
+        # with open('beta_results.csv', 'w') as f:
+        #     # row = beta.tolist()
+        #     # print(row)
+        #     # writer = csv.writer(f)
+        #     # writer.writerow(row)
+        #     f.write(str(beta))
 
-        #f.close()
+        # #f.close()
 
         yield 'beta values: ', beta.tolist()
 
