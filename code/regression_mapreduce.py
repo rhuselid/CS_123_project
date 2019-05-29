@@ -183,6 +183,7 @@ class LinearRegression(MRJob):
 
         print()
         print('====================================================')
+        print('sample size: ', sample_size)
 
         # with open('beta_results.csv', 'w') as f:
         #     # row = beta.tolist()
