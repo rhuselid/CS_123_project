@@ -22,8 +22,8 @@ class LinearRegression(MRJob):
         
     def mapper(self, _, line):
         line = line.split(',')
-        print('heres line:')
-        print(line)
+        # print('heres line:')
+        # print(line)
         # constant, temp, relative_change, morning, afternoon, evening, interactions = 1, int(line[1]), int(line[2]), int(line[3]), int(line[4]), int(line[5]), int(line[6])
         constant, temp, relative_change, morning, afternoon, evening, interactions = int(1 + random.randint(1,101)), int(1 + random.randint(1,101)), int(1 + random.randint(1,101)),int(1 + random.randint(1,101)), int(1 + random.randint(1,101)),int(1 + random.randint(1,101)), int(1 + random.randint(1,101))
         sentiment = int(1 + random.randint(1,101))
@@ -83,9 +83,9 @@ class LinearRegression(MRJob):
 
         X = np.array([constant, temp, relative_change, morning, afternoon, evening, interactions])
         Y = np.array([sentiment])
-        print('heres X AND Y')
-        print(X)
-        print(Y)
+        # print('heres X AND Y')
+        # print(X)
+        # print(Y)
 
         x_transpose_x = np.outer(X, X)  # 7 x 7 matrix 
         x_transpose_y = X * Y             # 1 x 7 array
@@ -100,71 +100,12 @@ class LinearRegression(MRJob):
         #yield 1, list((x_transpose_x.tolist(), x_transpose_y.tolist()))
 
     def combiner(self, num_obs, values):
-        print('combining')
-        sample_size = 0
-        x_transpose_x = np.zeros([7,7]) 
-        x_transpose_y = np.zeros(7)
-
-        for mat in values:
-
-            if mat[0] == 'xty':
-                x_transpose_y += np.array(mat[1])
-            elif mat[0] == 'xtx':
-                x_transpose_x += np.array(mat[1])
-            else:
-                sample_size += sum(mat[1])
-
-        # for val in values:
-        #     #print(val)
-        #     arr_xtx = np.array(val[0])
-        #     arr_xty = np.array(val[1])
-
-        #     x_transpose_x += arr_xtx
-        #     x_transpose_y += arr_xty
-        #     sample_size += val[2]
-
-        # now we need to solve for beta (i.e. the coefficients of the variables)
-        # beta = (X′X)−1X′Y
-        print('xtx', x_transpose_x)
-        print('determinate:', np.linalg.det(x_transpose_x))
-        print('xty', x_transpose_y)
-
-        #beta = np.linalg.inv(x_transpose_x) @ x_transpose_y
-        beta = np.linalg.solve(x_transpose_x, x_transpose_y)
-
-        print()
-        print('coefficients derived from multiple linear regression')
-        print('====================================================')
-        print()
-
-        print('intercept:                      ', beta[0])
-        print('temperature                     ', beta[1])
-        print('relative change in temperature  ', beta[2])
-        print('tweet was in morning            ', beta[3])
-        print('tweet was in afternoon          ', beta[4])
-        print('tweet was in evening            ', beta[5])
-        print('number of tweet interactions    ', beta[6])
-
-        print()
-        print('====================================================')
-
-        with open('beta_results.csv', 'w') as f:
-            row = beta.tolist()
-            print(row)
-            writer = csv.writer(f)
-            writer.writerow(row)
-
-        f.close()
-
-        yield 'beta values: ', beta.tolist()
-
-    def reducer(self, name, matrices):
         print('reducing')
         sample_size = 0
         x_transpose_x = np.zeros([7,7]) 
         x_transpose_y = np.zeros(7)
 
-        for mat in matrices:
+        for mat in values:
             sample_size += 1
             
             if mat[0] == 'xty':
@@ -184,6 +125,69 @@ class LinearRegression(MRJob):
         yield None, ('xtx', x_transpose_x.tolist())
         yield None, ('xty', x_transpose_y.tolist())
         yield None, ('sample_size', sample_size)
+        
+
+    def reducer(self, name, matrices):
+        print('combining')
+        sample_size = 0
+        x_transpose_x = np.zeros([7,7]) 
+        x_transpose_y = np.zeros(7)
+
+        for mat in matrices:
+
+            if mat[0] == 'xty':
+                x_transpose_y += np.array(mat[1])
+            elif mat[0] == 'xtx':
+                x_transpose_x += np.array(mat[1])
+            else:
+                sample_size += mat[1]
+
+        print('xtx', x_transpose_x)
+        print('determinate:', np.linalg.det(x_transpose_x))
+        print('xty', x_transpose_y)
+
+
+        # for val in values:
+        #     #print(val)
+        #     arr_xtx = np.array(val[0])
+        #     arr_xty = np.array(val[1])
+
+        #     x_transpose_x += arr_xtx
+        #     x_transpose_y += arr_xty
+        #     sample_size += val[2]
+
+        # now we need to solve for beta (i.e. the coefficients of the variables)
+        # beta = (X′X)−1X′Y
+
+        beta = np.linalg.inv(x_transpose_x) @ x_transpose_y
+        #beta = np.linalg.solve(x_transpose_x, x_transpose_y)
+
+        print()
+        print('coefficients derived from multiple linear regression')
+        print('====================================================')
+        print()
+
+        print('intercept:                      ', beta[0])
+        print('temperature                     ', beta[1])
+        print('relative change in temperature  ', beta[2])
+        print('tweet was in morning            ', beta[3])
+        print('tweet was in afternoon          ', beta[4])
+        print('tweet was in evening            ', beta[5])
+        print('number of tweet interactions    ', beta[6])
+
+        print()
+        print('====================================================')
+
+        with open('beta_results.csv', 'w') as f:
+            # row = beta.tolist()
+            # print(row)
+            # writer = csv.writer(f)
+            # writer.writerow(row)
+            f.write(str(beta))
+
+        #f.close()
+
+        yield 'beta values: ', beta.tolist()
 
 
 
