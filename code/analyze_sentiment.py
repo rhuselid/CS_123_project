@@ -17,7 +17,8 @@ WORD_RE = re.compile(r"[\w']+")
 def add_sentiment_key():
 
     with open('sentiment_analyzed.json', 'w') as outfile:
-        complete = []
+        # json.dump({, outfile)
+        # complete = []
         with open('30.json') as file:
             for l in file: 
                 line = json.loads(l)
@@ -69,12 +70,15 @@ def add_sentiment_key():
                         print('no language')
 
                     # adds a new key, val to the json
-                    complete.append(relevant)
-            json.dump(complete, outfile)
+                    # complete.append(relevant)
+                    json.dump(relevant, outfile)
+            # json.dump(complete, outfile)
+        # json.dump(}, outfile)
         file.close()
+
     outfile.close()
 
-    return complete
+    # return complete
 
 
 if __name__ == '__main__':
