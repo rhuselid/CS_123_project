@@ -80,10 +80,8 @@ class AnalyzeSentiment(MRJob):
             
             yield None, new_line
 
-
     # def combiner(self, _, new_lines):
     #     yield None, new_lines
-
 
     def reducer(self, _, new_lines):
 
