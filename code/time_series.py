@@ -106,8 +106,11 @@ def aggregate_sentiment_index(num_users, min_lines, users_per_day, user_time_ser
     ## might also want to accumulate users randomly
 
     with open(user_time_series_file) as f:
-        while(days_accounted_for):
-            for line in f:
+        for line in f:
+                
+                if days_accounted_for == {}:
+                    return users
+                
                 line2 = ''.join(line.split())
                 line2 = line2.split(",")
 
@@ -119,22 +122,22 @@ def aggregate_sentiment_index(num_users, min_lines, users_per_day, user_time_ser
             ## For Now only aim for one observation per each day beta but this is
             ## a potentially strong assumption given our sparse data
 
-
-            ## OKAY THIS IS NONSENSE. RE DO WHEN NOT TIRED. WHILE LOOP IS GOING FOR ONE LINE
-            ## NOT SMART. Probabily shold put it above the for line in f:
-
                 for i in range(line_length):
                     if i % num_user_fields == 3:
+                        
                         time_stamp = float(line2[i][:-1])
                         sentiment_score = float(line2[i-1])
                         datetime_obj = datetime.fromtimestamp(time_stamp, tz=timezone.utc)
                         datetime_obj = datetime_obj.replace(hour=0, minute=0, second=0)
+                        
                         users[user_id].append((sentiment_score, time_stamp, datetime_obj))
 
-                        # if days_accounted_for[d[datetime_obj]] <= 0:
-                        #     del days_accounted_for[d[datetime_obj]]
-                        #     continue
-                        days_accounted_for[d[datetime_obj]] -= 1
+                if days_accounted_for[d[datetime_obj]] <= 0:
+                    del days_accounted_for[d[datetime_obj]]
+                    continue
+                days_accounted_for[d[datetime_obj]] -= 1
+
+
 
 
                         
