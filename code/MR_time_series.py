@@ -47,13 +47,13 @@ class TimeSeries(MRJob):
                 time_stamp = datetime.timestamp(time_stamp)
                 tweet_text = line['text']
                 print("about to score sentiments")
-                
-                for word in WORD_RE.findall(tweet_text):
-                    if word not in stop_words:
-                        if filtered:
-                            filtered += ' '
-                        filtered += str(word)
-                sentiment = SentimentIntensityAnalyzer().polarity_scores(filtered)['compound']
+                sentiment = line['sentiment']
+                # for word in WORD_RE.findall(tweet_text):
+                #     if word not in stop_words:
+                #         if filtered:
+                #             filtered += ' '
+                #         filtered += str(word)
+                # sentiment = SentimentIntensityAnalyzer().polarity_scores(filtered)['compound']
                 print("about to yield")
                 value_string = "," + str(tweet_id) + ',' + str(sentiment) + ',' + str(time_stamp)
                 yield user_id, value_string
