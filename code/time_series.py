@@ -25,6 +25,18 @@ east_border = -66.9513812 # east long
 south_border =  24.7433195 # south lat
 # above continental us borders pulled from: https://gist.github.com/jsundram/1251783
 
+def find_date_range(json_file):
+    d = {}
+    with open(json_file) as f:
+        for line in f:
+            line = json.loads(line)
+
+            if line['created_at'] not in d:
+                d[line['created_at']] = 1
+    return d
+
+
+
 def create_date_indexer():
     '''
     Create indexer. WIll allow us to map which days to include
@@ -404,3 +416,4 @@ def extreme_sentiment_bool(list_of_users_sentimentlists, time_frame):
 Potential Idea: does day of the week or time affect sentiment? SImple OLS
 
 '''
+
