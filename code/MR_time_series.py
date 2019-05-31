@@ -11,6 +11,7 @@ nltk.download('vader_lexicon')
 from nltk.corpus import stopwords
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 stop_words=set(stopwords.words("english"))
+import time
 
 
 WORD_RE = re.compile(r"[\w']+")
@@ -23,6 +24,20 @@ class TimeSeries(MRJob):
         try:
 
             line = json.loads(line)
+
+        except Exception as e:
+            print()
+            print("WE have an exception here it is:")
+            print(e)
+            # print(line[3000:3050])
+            print(len(line))
+            # time.sleep(20)
+            # print(line)
+            print("==========================")
+            print()
+            # time.sleep(20)
+        else:
+            "got past the exception"
             filtered = ''
             
             if ts.is_tweet_of_interest(line):
@@ -40,14 +55,9 @@ class TimeSeries(MRJob):
                         filtered += str(word)
                 sentiment = SentimentIntensityAnalyzer().polarity_scores(filtered)['compound']
                 print("about to yield")
-                value_string = str(tweet_id) + '|' + str(sentiment) + '|' + str(time_stamp)
+                value_string = "," + str(tweet_id) + ',' + str(sentiment) + ',' + str(time_stamp)
                 yield user_id, value_string
-
-        except Exception as e:
-            print()
-            print("WE have an exception here it is:")
-            print(e)
-            print(line)
+        
 
 
 
@@ -68,7 +78,7 @@ class TimeSeries(MRJob):
 
         ## STILL HAVE TO ADD THE TIME TO EACH SENTIMENT
 
-        yield users, tweets_sentiments
+        yield users, str(tweets_sentiments)[2:-2]
 
 
 if __name__ == '__main__':

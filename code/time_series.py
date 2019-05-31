@@ -3,9 +3,27 @@ import os
 import re
 import nltk
 import csv
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
+users = {}
+dict_time_series = {}
+jsons_path = "/home/student/CS_123_project/jsons_dir"
+bug_dict = {}
+
+WORD_RE = re.compile(r"[\w']+")
+
+nltk.download('stopwords')
+nltk.download('vader_lexicon')
+from nltk.corpus import stopwords
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+stop_words=set(stopwords.words("english"))
 ## Start / End date for data: 1/1/18 - 10/31/18
+
+north_border = 49.3457868 # north lat
+west_border = -124.7844079 # west long
+east_border = -66.9513812 # east long
+south_border =  24.7433195 # south lat
+# above continental us borders pulled from: https://gist.github.com/jsundram/1251783
 
 def create_date_indexer():
     '''
@@ -13,20 +31,16 @@ def create_date_indexer():
     when we compare betas.
     '''
     d = {}
+    d_inverse = {}
 
     start = datetime.strptime("01-06-2018", "%d-%m-%Y")
     end = datetime.strptime("31-10-2018", "%d-%m-%Y")
 
     for x in range(0,(end-start).days + 1):
         d[start + timedelta(days=x)] = x
+        d_inverse[x] = start + timedelta(days=x)
 
-    return d
-
-north_border = 49.3457868 # north lat
-west_border = -124.7844079 # west long
-east_border = -66.9513812 # east long
-south_border =  24.7433195 # south lat
-# above continental us borders pulled from: https://gist.github.com/jsundram/1251783
+    return d, d_inverse
 
 
 def is_tweet_of_interest(line):
@@ -48,38 +62,72 @@ def is_tweet_of_interest(line):
     if 'delete' in line:
         return False
 
-    if not line['geo']:
-        return False
+    # if not line['geo']:
+    #     return False
 
-    lat = line['geo']['coordinates'][0]
-    lon = line['geo']['coordinates'][1]
-    print('im in tweet of interest')
+    # lat = line['geo']['coordinates'][0]
+    # lon = line['geo']['coordinates'][1]
+    # print('im in tweet of interest')
 
     # if not ((south_border < lat and lat < north_border) and
     #         (west_border < lon and lon < east_border)):
     #     return False
 
-    print('still here')
+    # print('still here')
 
     ## How to deal with repeat tweets though?
 
     return True
 
+def aggregate_sentiment_index(num_users, min_lines, user_time_series_file):
+
+    ## If 3 componenets after user Id: things rotate in mod 4 with offset 1
+    ## bcz first element is non repeating user id with an end quote
+    ## time stamp always has end quotes...
+    temp_count = 0
+    num_user_fields = 4 ## including extra comma
+    users = {}
+    ## might also want to accumulate users randomly
+
+    with open(user_time_series_file) as f:
+        for line in f:
+            print('line before: ')
+            print(line)
+            line2 = ''.join(line.split())
+            line2 = line2.split(",")
+
+            user_id = int(line2[0][:-1])
+            users[user_id] = []
+            
+            line_length = len(line2)
+
+
+            for i in range(line_length):
+                if i % num_user_fields == 3:
+                    users[user_id].append((float(line2[i-1]), float(line2[i][:-1])))
 
 
 
-users = {}
-dict_time_series = {}
-jsons_path = "/home/student/CS_123_project/jsons_dir"
-bug_dict = {}
+            temp_count += 1
 
-WORD_RE = re.compile(r"[\w']+")
+            if temp_count == 10:
+                return users
 
-nltk.download('stopwords')
-nltk.download('vader_lexicon')
-from nltk.corpus import stopwords
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
-stop_words=set(stopwords.words("english"))
+
+
+            # time_stamp = int(line[1].split("|")[2][:-4])
+
+            # print("=======================\n")
+            # for index, element in enumerate(line2):
+            #     print("_____________________")
+            #     print("heres element: ", index)
+            #     print(element)
+            #     print("__________________")
+            # # print(line3
+
+
+
+
 
 def user_time_series():
 
