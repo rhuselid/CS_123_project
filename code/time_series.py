@@ -30,9 +30,10 @@ def find_date_range(json_file):
     with open(json_file) as f:
         for line in f:
             line = json.loads(line)
-
-            if line['created_at'] not in d:
-                d[line['created_at']] = 1
+            timestamp = datetime.strptime(line['created_at'], '%a %b %d %H:%M:%S %z %Y')
+            timestamp = timestamp.replace(hour=0, minute=0, second=0)
+            if timestamp not in d:
+                d[timestamp] = 1
     return d
 
 
