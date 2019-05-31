@@ -3,26 +3,7 @@ import os
 import re
 import nltk
 import csv
-from datetime import datetime, timedelta
-
-## Start / End date for data: 1/1/18 - 10/31/18
-
-def create_date_indexer():
-    '''
-    Create indexer. WIll allow us to map which days to include
-    when we compare betas.
-    '''
-    d = {}
-
-    start = datetime.strptime("01-06-2018", "%d-%m-%Y")
-    end = datetime.strptime("31-10-2018", "%d-%m-%Y")
-
-    for x in range(0,(end-start).days + 1):
-        d[start + timedelta(days=x)] = x
-
-    return d
-
-
+from datetime import date, datetime, timedelta, timezone
 
 users = {}
 dict_time_series = {}
@@ -36,6 +17,140 @@ nltk.download('vader_lexicon')
 from nltk.corpus import stopwords
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 stop_words=set(stopwords.words("english"))
+## Start / End date for data: 1/1/18 - 10/31/18
+
+north_border = 49.3457868 # north lat
+west_border = -124.7844079 # west long
+east_border = -66.9513812 # east long
+south_border =  24.7433195 # south lat
+# above continental us borders pulled from: https://gist.github.com/jsundram/1251783
+
+def create_date_indexer():
+    '''
+    Create indexer. WIll allow us to map which days to include
+    when we compare betas.
+    '''
+    d = {}
+    d_inverse = {}
+
+    start = datetime.strptime("01-06-2018", "%d-%m-%Y")
+    end = datetime.strptime("31-10-2018", "%d-%m-%Y")
+
+    for x in range(0,(end-start).days + 1):
+        d[start + timedelta(days=x)] = x
+        d_inverse[x] = start + timedelta(days=x)
+
+    return d, d_inverse
+
+
+def is_tweet_of_interest(line):
+    '''
+    Skip tweet if the tweet given does not meet criteria.
+    ##
+    line: tweet dictionary already loaded from json
+
+    More elegant way to iterate through files:
+    with open('30.json') as test_json:
+   ...:     for line in test_json:
+   ...:         line = json.loads(line)
+   ...:         if 'delete' in line:
+   ...:             print(i)
+   ...:         i += 1
+   ...:         holder2.append(line)
+    '''
+
+    if 'delete' in line:
+        return False
+
+    # if not line['geo']:
+    #     return False
+
+    # lat = line['geo']['coordinates'][0]
+    # lon = line['geo']['coordinates'][1]
+    # print('im in tweet of interest')
+
+    # if not ((south_border < lat and lat < north_border) and
+    #         (west_border < lon and lon < east_border)):
+    #     return False
+
+    # print('still here')
+
+    ## How to deal with repeat tweets though?
+
+    return True
+
+def aggregate_sentiment_index(num_users, min_lines, users_per_day, user_time_series_file):
+
+    ## If 3 componenets after user Id: things rotate in mod 4 with offset 1
+    ## bcz first element is non repeating user id with an end quote
+    ## time stamp always has end quotes...
+    temp_count = 0
+    num_user_fields = 4 ## including extra comma
+    users = {}
+    d, d_inverse = create_date_indexer()
+    days_accounted_for = {k:users_per_day for k in list(range(153))}
+
+    ## might also want to accumulate users randomly
+
+    with open(user_time_series_file) as f:
+        for line in f:
+            # print('line before: ')
+            # print(line)
+
+            line2 = ''.join(line.split())
+            line2 = line2.split(",")
+
+            user_id = int(line2[0][:-1])
+            users[user_id] = []
+            
+            line_length = len(line2)
+
+        ## For Now only aim for one observation per each day beta but this is
+        ## a potentially strong assumption given our sparse data
+
+
+        ## OKAY THIS IS NONSENSE. RE DO WHEN NOT TIRED. WHILE LOOP IS GOING FOR ONE LINE
+        ## NOT SMART. Probabily shold put it above the for line in f:
+            while(days_accounted_for):
+                for i in range(line_length):
+                    if i % num_user_fields == 3:
+                        time_stamp = float(line2[i][:-1])
+                        sentiment_score = float(line2[i-1])
+                        datetime_obj = datetime.fromtimestamp(time_stamp, tz=timezone.utc)
+                        datetime_obj = datetime_obj.replace(hour=0, minute=0, second=0)
+                        users[user_id].append((sentiment_score, time_stamp, datetime_obj))
+
+                        # if days_accounted_for[d[datetime_obj]] <= 0:
+                        #     del days_accounted_for[d[datetime_obj]]
+                        #     continue
+                        days_accounted_for[d[datetime_obj]] -= 1
+
+
+                        
+
+
+
+
+            temp_count += 1
+
+            if temp_count == 10:
+                return users
+
+
+
+            # time_stamp = int(line[1].split("|")[2][:-4])
+
+            # print("=======================\n")
+            # for index, element in enumerate(line2):
+            #     print("_____________________")
+            #     print("heres element: ", index)
+            #     print(element)
+            #     print("__________________")
+            # # print(line3
+
+
+
+
 
 def user_time_series():
 
@@ -98,7 +213,7 @@ def user_time_series():
                     geo = line['geo']
                     if line['geo'] != None:
                         # write_to_json("repeat_tweets.json", {identification: tweet_text})
-                        write_csv([tweet_text, tweet_id], "repeat_tweets.csv")
+                        # write_csv([tweet_text, tweet_id], "repeat_tweets.csv")
                         geotag_count += 1
                         geotag_list.append(line['geo'])
 
@@ -289,14 +404,3 @@ def extreme_sentiment_bool(list_of_users_sentimentlists, time_frame):
 Potential Idea: does day of the week or time affect sentiment? SImple OLS
 
 '''
-
-
-
-
-
-
-
-
-
-
-

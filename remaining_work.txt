@@ -1,0 +1,4 @@
+Documentation of the work to be done over the weekend:
+
+Running the regressions (they have been shown to work with a toy dataset)
+Running the timeseries cluster analysis 

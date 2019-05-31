@@ -29,48 +29,73 @@ stop_words=set(stopwords.words("english"))
 
 # looking for stopwords is more efficient
 
-# 
-
 WORD_RE = re.compile(r"[\w']+")
 
 class AnalyzeSentiment(MRJob):
+    # the purpose of this code is to take a json and read is to reduce a large dataset of 
+    # tweets into information about sentiment and attached to geo-coordinates.
+
+    # we tested efficiency of removing stop words and text alone (with the 30.json file)
+    #     removing stop words:   0m38.099s
+    #     no removed stop words: 0m36.641s
+
+    # since this did not significantly change the run time, we removed stop words in tweets.
 
     def mapper(self, _, line):
-        #print(line)
         line = json.loads(line)
-        #print(line.keys())
-        #time = line['timestamp_ms']
-        if ('geo' in line.keys()) and (line['geo']):
-            top = 49.3457868 # north lat
-            left = -124.7844079 # west long
-            right = -66.9513812 # east long
-            bottom =  24.7433195 # south lat
-            # above continental us borders pulled from: https://gist.github.com/jsundram/1251783
 
-            lat = line['geo']['coordinates'][0]
-            lon = line['geo']['coordinates'][1]
+        # below filtering already done in when the json was reduced to current size
+
+        # if (line['lang']) and (line['lang'] == 'en'):
+        #     # makes sure that the language is English (analysis is resticted to English only)
+
+        #     if ('geo' in line.keys()) and (line['geo']):
+        #         top = 49.3457868 # north lat
+        #         left = -124.7844079 # west long
+        #         right = -66.9513812 # east long
+        #         bottom =  24.7433195 # south lat
+        #         # makes sure that the tweet was from the continental US (which is where our other data 
+        #         # source is from). Borders coordinates pulled from: https://gist.github.com/jsundram/1251783
+
+        #         lat = line['geo']['coordinates'][0]
+        #         lon = line['geo']['coordinates'][1]
+                
+        #         if (bottom < lat and top > lat) and (left < lon and right > lon):
+
+        if 'text' in line.keys():
+            text = line['text']
+            filtered = ''
+            for word in WORD_RE.findall(text):
+                if word not in stop_words:
+                    # not including stop words helps to reduce the noise
+
+                    if filtered:
+                        filtered += ' '
+                    filtered += str(word)
+
+            sentiment = SentimentIntensityAnalyzer().polarity_scores(filtered)
+
+            new_line = line
+            new_line['sentiment'] = sentiment['compound']
             
-            if (bottom < lat and top > lat) and (left < lon and right > lon):
-                if 'text' in line.keys():
-                    text = line['text']
-                    filtered = ''
-                    for word in WORD_RE.findall(text):
-                        if word not in stop_words:
-                            if filtered:
-                                filtered += ' '
-                            filtered += str(word)
-                    print(filtered)
-                    sentiment = SentimentIntensityAnalyzer().polarity_scores(filtered)#['pos']
-                    
-                    yield [lat, lon], sentiment
+            yield None, new_line
 
+    # def combiner(self, _, new_lines):
+    #     yield None, new_lines
 
-    def combiner(self, location, sentiment):
-        yield location, list(sentiment)
+    def reducer(self, _, new_lines):
 
+        with open('data_with_sentiment.json', 'w') as f:
+            for line in new_lines:
+                print('added a new line')
+                print(line)
+                json.dump(line, f)
 
-    def reducer(self, location, sentiment):
-        yield location, list(sentiment)
+            print(f)
+            # creates a new json file that includes this column (parallelization of sentiment analysis increases speed)
+        f.close()
+
+        yield None, None
 
 
 if __name__ == '__main__':

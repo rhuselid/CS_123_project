@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# script to download the twitter data (a bunch of jsons) and then turn this into
-# a single file.
+# script to download the twitter data (a number of tar files from archive.org).
+
+# it takes roughly 20 hours for this script to run. Their servers are based in San Francisco,
+# so we found that renting VMs from LA to be the most time-efficient (we ended up repeating 
+# this process many times). 
 
 base_url="https://archive.org/download/archiveteam-twitter-stream-2018-" #10/twitter-2018-10-01.tar
 extension="/twitter-2018-"
@@ -11,11 +14,11 @@ tar='.tar'
 
 for m in `seq 1 10`; do
 	if [ $m -lt 5 ]; then
-				# the urls are formated differently Jan-Apr
-				# example: https://archive.org/download/archiveteam-twitter-stream-2018-02/archiveteam-twitter-stream-2018-02.tar
-				mon="0$m"
-				echo "$base_url$mon/archiveteam-twitter-stream-2018-$mon.tar"
-				wget "$base_url$mon/archiveteam-twitter-stream-2018-$mon.tar"
+		# the urls are formated differently Jan-Apr
+		# example: https://archive.org/download/archiveteam-twitter-stream-2018-02/archiveteam-twitter-stream-2018-02.tar
+		mon="0$m"
+		echo "$base_url$mon/archiveteam-twitter-stream-2018-$mon.tar"
+		wget "$base_url$mon/archiveteam-twitter-stream-2018-$mon.tar"
 	
 	elif [ $m -eq 1 -o $m -eq 3 -o $m -eq 5 -o $m -eq 7 -o $m -eq 8 -o $m -eq 10 ]; then
 
@@ -34,7 +37,7 @@ for m in `seq 1 10`; do
 				mon=$m
 				# -10 has no leading 0
 			fi
-			echo "$base_url$mon$extension$mon$dassh$clean_day$tar"
+			echo "$base_url$mon$extension$mon$dash$clean_day$tar"
 			wget "$base_url$mon$extension$mon$dash$clean_day$tar"
 		done
 
@@ -45,8 +48,9 @@ for m in `seq 1 10`; do
 			else
 				clean_day="$day"
 			fi
-			echo "$base_url0$m$extension0$m$dash$clean_day$tar"
-			wget "$base_url0$m$extension0$n$dash$clean_day$tar"
+			mon="0$m"
+			echo "$base_url0$mon$extension0$m$dash$clean_day$tar"
+			wget "$base_url0$mon$extension0$m$dash$clean_day$tar"
 
 		done
 	fi
