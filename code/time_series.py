@@ -3,7 +3,7 @@ import os
 import re
 import nltk
 import csv
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 
 users = {}
 dict_time_series = {}
@@ -79,7 +79,7 @@ def is_tweet_of_interest(line):
 
     return True
 
-def aggregate_sentiment_index(num_users, min_lines, user_time_series_file):
+def aggregate_sentiment_index(num_users, min_lines, users_per_day, user_time_series_file):
 
     ## If 3 componenets after user Id: things rotate in mod 4 with offset 1
     ## bcz first element is non repeating user id with an end quote
@@ -87,12 +87,16 @@ def aggregate_sentiment_index(num_users, min_lines, user_time_series_file):
     temp_count = 0
     num_user_fields = 4 ## including extra comma
     users = {}
+    d, d_inverse = create_date_indexer()
+    days_accounted_for = {k:users_per_day for k in list(range(153))}
+
     ## might also want to accumulate users randomly
 
     with open(user_time_series_file) as f:
         for line in f:
-            print('line before: ')
-            print(line)
+            # print('line before: ')
+            # print(line)
+
             line2 = ''.join(line.split())
             line2 = line2.split(",")
 
@@ -101,10 +105,29 @@ def aggregate_sentiment_index(num_users, min_lines, user_time_series_file):
             
             line_length = len(line2)
 
+        ## For Now only aim for one observation per each day beta but this is
+        ## a potentially strong assumption given our sparse data
 
-            for i in range(line_length):
-                if i % num_user_fields == 3:
-                    users[user_id].append((float(line2[i-1]), float(line2[i][:-1])))
+
+        ## OKAY THIS IS NONSENSE. RE DO WHEN NOT TIRED. WHILE LOOP IS GOING FOR ONE LINE
+        ## NOT SMART. Probabily shold put it above the for line in f:
+            while(days_accounted_for):
+                for i in range(line_length):
+                    if i % num_user_fields == 3:
+                        time_stamp = float(line2[i][:-1])
+                        sentiment_score = float(line2[i-1])
+                        datetime_obj = datetime.fromtimestamp(time_stamp, tz=timezone.utc)
+                        datetime_obj = datetime_obj.replace(hour=0, minute=0, second=0)
+                        users[user_id].append((sentiment_score, time_stamp, datetime_obj))
+
+                        # if days_accounted_for[d[datetime_obj]] <= 0:
+                        #     del days_accounted_for[d[datetime_obj]]
+                        #     continue
+                        days_accounted_for[d[datetime_obj]] -= 1
+
+
+                        
+
 
 
 
@@ -381,14 +404,3 @@ def extreme_sentiment_bool(list_of_users_sentimentlists, time_frame):
 Potential Idea: does day of the week or time affect sentiment? SImple OLS
 
 '''
-
-
-
-
-
-
-
-
-
-
-
