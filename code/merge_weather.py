@@ -1,16 +1,39 @@
 # import pandas as pd
 import csv
-# print("Lebron sucks")
 import pandas as pd
-print("Lebron sucks")
+
+top = 49.3457868 # north lat
+bottom =  24.7433195 # south lat
+left = -124.7844079 # west long
+right = -66.9513812 #east long
+
 weatherdata = pd.read_csv("2018.csv")
 w_cols = ["stationid", "date", "weathertype", "quantity","empty1", "empty2", "empty3", "empty4"]
 weatherdata.columns=w_cols
-# print(weatherdata[:10])
+
 stationdata = pd.read_fwf("stations.txt")
 s_cols = ["stationid", "latitude", "longitude", "elevation","location", "empty1", "empty2", "empty3"]
 stationdata.columns=s_cols
 merged = pd.merge(weatherdata, stationdata, on='stationid', how='left')
+merge_dropped = merged.drop(["empty1_x", "empty2_x", "empty3_x", "empty1_y", "empty2_y", "empty3_y", "empty4"], axis=1)
+
+temperature_type = ["TMIN", "TMAX"]
+temp = merge_dropped[merge_dropped['weathertype'].isin(temperature_type)]
+temp_avg = temp.groupby(["stationid", "date"]).quantity.mean()
+temp_df = temp_avg.to_frame().reset_index()
+
+temp_df_merge = pd.merge(temp_df, stationdata, on="stationid", how="left").drop(["empty1", "empty2", "empty3"], axis=1)
+temp_df_merge.rename(columns={'quantity':'average_temp'}, inplace=True)
+
+US_temp_df = temp_df_merge[(temp_df_merge['latitude'] > bottom) & (temp_df_merge['latitude'] < top)]
+US_temp_df = US_temp_df[(US_temp_df['longitude'] > left) & (US_temp_df['longitude'] < right)]
+
+
+
+# for index, row in merge_dropped.itterows():
+# 	if row.
+# 	print(index, row)
+
 # print(stationdata[:10])
 
 # https://stackoverflow.com/questions/35063137/how-to-rename-key-header-in-csv-dictreader
