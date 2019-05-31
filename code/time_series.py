@@ -46,7 +46,7 @@ def create_date_indexer():
 def is_tweet_of_interest(line):
     '''
     Skip tweet if the tweet given does not meet criteria.
-
+    ##
     line: tweet dictionary already loaded from json
 
     More elegant way to iterate through files:
