@@ -92,6 +92,24 @@ def is_tweet_of_interest(line):
 
     return True
 
+def aggregation_helper(user_dictionary):
+    '''
+    user dictionary of form users in aggregate_sentiment_index()
+    '''
+    return_d = {}
+
+    for key in user_dictionary:
+        for item in user_dictionary[key]:
+            if item[2] not in return_d:
+                return_d[item[2]] = [item[0], 1]
+            else:
+                return_d[item[2]][0] += item[0]
+                return_d[item[2]][1] += 1
+    return return_d
+
+
+
+
 def aggregate_sentiment_index(num_users, min_lines, users_per_day, user_time_series_file):
 
     ## If 3 componenets after user Id: things rotate in mod 4 with offset 1
@@ -102,6 +120,7 @@ def aggregate_sentiment_index(num_users, min_lines, users_per_day, user_time_ser
     users = {}
     d, d_inverse = create_date_indexer()
     days_accounted_for = {k:users_per_day for k in list(d_inverse.keys())}
+    indexdict = {}
     print('THIS IS DAYS ACCOUNTED FOR!:', days_accounted_for)
     ## might also want to accumulate users randomly
 
@@ -109,7 +128,11 @@ def aggregate_sentiment_index(num_users, min_lines, users_per_day, user_time_ser
         for line in f:
                 
                 if days_accounted_for == {}:
-                    return users
+
+                    return_d = aggregation_helper(users)
+
+
+                    return return_d
                 
                 line2 = ''.join(line.split())
                 line2 = line2.split(",")
