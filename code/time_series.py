@@ -102,7 +102,7 @@ def aggregate_sentiment_index(num_users, min_lines, users_per_day, user_time_ser
     users = {}
     d, d_inverse = create_date_indexer()
     days_accounted_for = {k:users_per_day for k in list(d_inverse.keys())}
-
+    print('THIS IS DAYS ACCOUNTED FOR!:', days_accounted_for)
     ## might also want to accumulate users randomly
 
     with open(user_time_series_file) as f:
@@ -128,29 +128,15 @@ def aggregate_sentiment_index(num_users, min_lines, users_per_day, user_time_ser
                         time_stamp = float(line2[i][:-1])
                         sentiment_score = float(line2[i-1])
                         datetime_obj = datetime.fromtimestamp(time_stamp, tz=timezone.utc)
-                        datetime_obj = datetime_obj.replace(hour=0, minute=0, second=0)
+                        datetime_obj = datetime_obj.replace(hour=0, minute=0, second=0, tzinfo=None)
                         
                         users[user_id].append((sentiment_score, time_stamp, datetime_obj))
-
+                if d[datetime_obj] not in days_accounted_for:
+                    continue
                 if days_accounted_for[d[datetime_obj]] <= 0:
                     del days_accounted_for[d[datetime_obj]]
                     continue
                 days_accounted_for[d[datetime_obj]] -= 1
-
-
-
-
-                        
-
-
-
-
-            temp_count += 1
-
-            if temp_count == 10:
-                return users
-
-
 
             # time_stamp = int(line[1].split("|")[2][:-4])
 
