@@ -24,75 +24,78 @@ class LinearRegression(MRJob):
         # print('heres line:')
         # print(line)
         # constant, temp, relative_change, morning, afternoon, evening, interactions = 1, int(line[1]), int(line[2]), int(line[3]), int(line[4]), int(line[5]), int(line[6])
-        print(l)
+        # print(l)
         line = json.loads(l)
         print(line)
 
         # dependent variable (compound sentiment--positive values are positive in sentiment)
-        # sentiment = line['sentiment']
-        sentiment = random.randint(1,101)
+        sentiment = line['sentiment']
+        print(sentiment)
+        # sentiment = random.randint(1,101)
 
 
         # independent variables
         constant = 1
-        temp = random.randint(1,101)
-        season_avg = random.randint(1,101)
+        temp = random.randint(1,1000)
+        season_avg = random.randint(1,1000)
         relative_change = temp - season_avg
 
         # temp = line['temp']
         # season_avg = line['season_avg']
         # relative_change = temp - season_avg
 
-        # if type is float, then the time is missing
+        ############################################################################
+        # NOTE: we created a number of control variables (commented out below), but# 
+        #       they threw off regression results since they lacked significant    #
+        #       variation between the tweets.                                      #
+        ############################################################################
 
-        
-        # print(type(line['created_at'].hour))
 
-        
-        if ('created_at' in line.keys()):
-            hour = parse(line['created_at']).hour
-            # morning tweet binary variable
-            if (hour >= 3) and (hour < 12):
-                morning = 1
-            else:
-                morning = 0
+        # if ('created_at' in line.keys()):
+        #     hour = parse(line['created_at']).hour
+        #     # morning tweet binary variable
+        #     if (hour >= 3) and (hour < 12):
+        #         morning = 1
+        #     else:
+        #         morning = 0
 
-            # afternoon tweet binary
-            if (hour >= 12) and (hour < 18):
-                afternoon = 1
-            else:
-                afternoon = 0
+        #     # afternoon tweet binary
+        #     if (hour >= 12) and (hour < 18):
+        #         afternoon = 1
+        #     else:
+        #         afternoon = 0
 
-            # evening tweet binary
-            if (hour >= 18) or (hour < 3):
-                evening = 1
-            else:
-                evening = 0
-        else:
-            # in the case it is missing these still need values to have a consistant-sized matrix
-            morning = 0
-            afternoon = 0
-            evening = 0
+        #     # evening tweet binary
+        #     if (hour >= 18) or (hour < 3):
+        #         evening = 1
+        #     else:
+        #         evening = 0
+        # else:
+        #     # in the case it is missing these still need values to have a consistant-sized matrix
+        #     morning = 0
+        #     afternoon = 0
+        #     evening = 0
 
+        # our file had mostly unpopular tweets so there wasn't enough variance here for this to be predicitive
         # number of interactions (this may capture if popular tweets are critical of someone else)
-        interactions = 0
-        if 'reply_count' in line.keys():
-            interactions += int(line['reply_count'])
+        # interactions = 0
+        # if 'reply_count' in line.keys():
+        #     interactions += int(line['reply_count'])
 
-        if 'retweet_count' in line.keys():
-            interactions += int(line['retweet_count'])
+        # if 'retweet_count' in line.keys():
+        #     interactions += int(line['retweet_count'])
 
-        if 'favorite_count' in line.keys():
-            interactions += int(line['favorite_count'])
+        # if 'favorite_count' in line.keys():
+        #     interactions += int(line['favorite_count'])
 
-        X = np.array([constant, temp, relative_change, morning, afternoon, evening, interactions])
+        X = np.array([constant, temp, relative_change])
         Y = np.array([sentiment])
         # print('heres X AND Y')
-        print(X)
+        # print(X)
         # print(Y)
 
-        x_transpose_x = np.outer(X, X)  # 7 x 7 matrix 
-        x_transpose_y = X.T * Y         # 1 x 7 array
+        x_transpose_x = np.outer(X, X)  # 3 x 3 matrix 
+        x_transpose_y = X.T * Y         # 1 x 3 array
 
         # self.x_transpose_x += np.outer(X, X)
         # self.x_transpose_y += x*y
@@ -107,8 +110,8 @@ class LinearRegression(MRJob):
     def combiner(self, num_obs, values):
         print('reducing')
         sample_size = 0
-        x_transpose_x = np.zeros([7,7]) 
-        x_transpose_y = np.zeros(7)
+        x_transpose_x = np.zeros([3,3]) 
+        x_transpose_y = np.zeros(3)
 
         for mat in values:
             sample_size += 1
@@ -135,8 +138,8 @@ class LinearRegression(MRJob):
     def reducer(self, name, matrices):
         print('combining')
         sample_size = 0
-        x_transpose_x = np.zeros([7,7]) 
-        x_transpose_y = np.zeros(7)
+        x_transpose_x = np.zeros([3,3]) 
+        x_transpose_y = np.zeros(3)
 
         for mat in matrices:
 
@@ -175,10 +178,10 @@ class LinearRegression(MRJob):
         print('intercept                       ', beta[0])
         print('temperature                     ', beta[1])
         print('relative change in temperature  ', beta[2])
-        print('tweet was in morning            ', beta[3])
-        print('tweet was in afternoon          ', beta[4])
-        print('tweet was in evening            ', beta[5])
-        print('number of tweet interactions    ', beta[6])
+        # print('tweet was in morning            ', beta[3])
+        # print('tweet was in afternoon          ', beta[4])
+        # print('tweet was in evening            ', beta[5])
+        # print('number of tweet interactions    ', beta[6])
 
         print()
         print('====================================================')

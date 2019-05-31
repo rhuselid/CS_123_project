@@ -17,9 +17,8 @@ WORD_RE = re.compile(r"[\w']+")
 def add_sentiment_key():
 
     with open('sentiment_analyzed.json', 'w') as outfile:
-        # json.dump({, outfile)
-        # complete = []
-        with open('30.json') as file:
+
+        with open('larger_filtered_tweets.json') as file:
             for l in file: 
                 line = json.loads(l)
                 if 'text' in line.keys():
@@ -44,41 +43,55 @@ def add_sentiment_key():
                         relevant['reply_count'] = line['reply_count']
                     except:
                         print('no replies')
+                        relevant['reply_count'] = ''
+
                     try:
                         relevant['retweet_count'] = line['retweet_count']
                     except:
                         print('no retweets')
+                        relevant['retweet_count'] = ''
+
                     try: 
                         relevant['favorite_count'] = line['favorite_count']
                     except:
-                        print('no favorites')                    
+                        print('no favorites')
+                        relevant['favorites'] = ''
+
                     try:
                         relevant['coordinates'] = line['coordinates']
                     except:
                         print('no coordinates')
+                        relevant['coordinates'] = ''
+
                     try:
                         relevant['created_at'] = line['created_at']
                     except:
                         print('no date')
+                        relevant['created_at'] = ''
+
                     try:
                         relevant['geo'] = line['geo']
                     except:
                         print('no geotag')
+                        relevant['geo'] = '' 
+
                     try:
                         relevant['lang'] = line['lang']
                     except:
                         print('no language')
+                        relevant['lang'] = '' 
 
-                    # adds a new key, val to the json
-                    # complete.append(relevant)
-                    json.dump(relevant, outfile)
+                    str_dict = json.dumps(relevant, outfile)
+                    outfile.write(str_dict + '\n')
+            
             # json.dump(complete, outfile)
-        # json.dump(}, outfile)
+
         file.close()
 
     outfile.close()
 
-    # return complete
+    # ret = {{str(key): str(val) for key, val in d.items()} for d in complete}
+    # print(ret)
 
 
 if __name__ == '__main__':

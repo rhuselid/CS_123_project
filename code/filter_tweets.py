@@ -15,7 +15,7 @@ def save_relevant_tweets():
 
     To increase computational efficiency for such a large file,  is a limiting 
     '''
-    with open('filtered_tweets.json', 'w') as outfile:
+    with open('larger_filtered_tweets.json', 'w') as outfile:
     # creates a new file called filter_tweets.json which will include only the relevant slice
 
         with open('all.json') as f:
@@ -34,7 +34,8 @@ def save_relevant_tweets():
                         # makes sure that the language is English (analysis is resticted to English only)
                             if 'text' in line.keys():
                             # makes sure there is text content to analyze
-                                json.dump(line, outfile)
+                                str_dict = json.dumps(line, outfile)
+                                outfile.write(str_dict + '\n')
 
 
 if __name__ == '__main__':
