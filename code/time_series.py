@@ -17,7 +17,7 @@ nltk.download('vader_lexicon')
 from nltk.corpus import stopwords
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 stop_words=set(stopwords.words("english"))
-## Start / End date for data: 1/1/18 - 10/31/18
+## Start / End date for data: 10/1/18 - 11/01/18
 
 north_border = 49.3457868 # north lat
 west_border = -124.7844079 # west long
@@ -46,8 +46,8 @@ def create_date_indexer():
     d = {}
     d_inverse = {}
 
-    start = datetime.strptime("01-06-2018", "%d-%m-%Y")
-    end = datetime.strptime("31-10-2018", "%d-%m-%Y")
+    start = datetime.strptime("01-10-2018", "%d-%m-%Y")
+    end = datetime.strptime("01-11-2018", "%d-%m-%Y")
 
     for x in range(0,(end-start).days + 1):
         d[start + timedelta(days=x)] = x
@@ -101,30 +101,28 @@ def aggregate_sentiment_index(num_users, min_lines, users_per_day, user_time_ser
     num_user_fields = 4 ## including extra comma
     users = {}
     d, d_inverse = create_date_indexer()
-    days_accounted_for = {k:users_per_day for k in list(range(153))}
+    days_accounted_for = {k:users_per_day for k in list(d_inverse.keys())}
 
     ## might also want to accumulate users randomly
 
     with open(user_time_series_file) as f:
-        for line in f:
-            # print('line before: ')
-            # print(line)
+        while(days_accounted_for):
+            for line in f:
+                line2 = ''.join(line.split())
+                line2 = line2.split(",")
 
-            line2 = ''.join(line.split())
-            line2 = line2.split(",")
+                user_id = int(line2[0][:-1])
+                users[user_id] = []
+                
+                line_length = len(line2)
 
-            user_id = int(line2[0][:-1])
-            users[user_id] = []
-            
-            line_length = len(line2)
-
-        ## For Now only aim for one observation per each day beta but this is
-        ## a potentially strong assumption given our sparse data
+            ## For Now only aim for one observation per each day beta but this is
+            ## a potentially strong assumption given our sparse data
 
 
-        ## OKAY THIS IS NONSENSE. RE DO WHEN NOT TIRED. WHILE LOOP IS GOING FOR ONE LINE
-        ## NOT SMART. Probabily shold put it above the for line in f:
-            while(days_accounted_for):
+            ## OKAY THIS IS NONSENSE. RE DO WHEN NOT TIRED. WHILE LOOP IS GOING FOR ONE LINE
+            ## NOT SMART. Probabily shold put it above the for line in f:
+
                 for i in range(line_length):
                     if i % num_user_fields == 3:
                         time_stamp = float(line2[i][:-1])
