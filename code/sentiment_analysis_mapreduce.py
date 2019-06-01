@@ -1,3 +1,11 @@
+##################################################################################
+
+# Note: this file is depreciated (i.e. was not used to produce the resulting json)
+#       it is fairly similar to the analyze_sentiment.py version of the file except 
+#       this is intented to work with mapreduce. While it was not used to produce the 
+#       final output it was shown to work with a smaller json file locally
+
+#################################################################################
 from mrjob.job import MRJob
 import json
 import nltk
@@ -11,23 +19,6 @@ stop_words=set(stopwords.words("english"))
 
 # help from: https://www.datacamp.com/community/tutorials/text-analytics-beginners-nltk
 # and https://opensourceforu.com/2016/12/analysing-sentiments-nltk/
-
-#.mrjob.conf 
-
-# fill out the runners 
-
-# make a compute engine machine--create a VM with the data, then js.util to make a googlecloud storage bucket
-
-# mrjob will allow you to specify the data you want to run (url to data)
-
-# have to turn this into a signle compendium file -- turn to csv or json
-# can concat files together with cat command in bash
-
-# should be connecting to the VM with ssh from lab2
-
-# look into nltk to detect language or filter out by 1.0 neutral
-
-# looking for stopwords is more efficient
 
 WORD_RE = re.compile(r"[\w']+")
 
@@ -85,6 +76,9 @@ class AnalyzeSentiment(MRJob):
 
     def reducer(self, _, new_lines):
 
+        # creates a new json file that includes this column this was augmented to since 
+        # this does not represent good mapreduce practice (so another similar script 
+        # was written)
         with open('data_with_sentiment.json', 'w') as f:
             for line in new_lines:
                 print('added a new line')
@@ -92,7 +86,6 @@ class AnalyzeSentiment(MRJob):
                 json.dump(line, f)
 
             print(f)
-            # creates a new json file that includes this column (parallelization of sentiment analysis increases speed)
         f.close()
 
         yield None, None
