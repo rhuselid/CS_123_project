@@ -11,7 +11,7 @@ class CompareUsers(MRJob):
         user_id = list(line.keys())[0]
         beta = line[user_id]
 
-        with open("/home/student/CS_123_project/code/all_user_betas.json") as f:
+        with open("/home/student/CS_123_project/code/all_user_betas_small_copy.json") as f:
             for line2 in f:
                 line2 = json.loads(line2)
 
@@ -21,7 +21,8 @@ class CompareUsers(MRJob):
 
                 if beta != "No beta can be calculated" and beta2 != "No beta can be calculated":
 
-                    if abs(beta) - abs(beta2) < 0.05:
+                    if (abs(beta) - abs(beta2)) < 0.05:
+                        print(abs(beta) ,abs(beta2))
                         print("Found small beta")
                     
                         yield user_id, user_id2
@@ -36,6 +37,8 @@ class CompareUsers(MRJob):
 
 
     def reducer(self, user1, similarity_list):
+
+        similarity_list = list(similarity_list)
 
         yield user1, similarity_list
 
