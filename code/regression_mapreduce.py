@@ -18,7 +18,8 @@ class LinearRegression(MRJob):
         line = json.loads(l)
 
         # dependent variable (compound sentiment--positive values are positive in sentiment)
-        sentiment = line['sentiment']
+        # sentiment = line['sentiment']
+        sentiment = random.randint(1,1000)
 
         # independent variables
         constant = 1
@@ -89,7 +90,7 @@ class LinearRegression(MRJob):
         #yield 1, list((x_transpose_x.tolist(), x_transpose_y.tolist()))
 
     def combiner(self, num_obs, matrices):
-        print('reducing')
+        # print('reducing')
         sample_size = 0
         x_transpose_x = np.zeros([3,3]) 
         x_transpose_y = np.zeros(3)
@@ -111,7 +112,7 @@ class LinearRegression(MRJob):
         
 
     def reducer(self, name, matrices):
-        print('combining')
+        # print('combining')
         sample_size = 0
         x_transpose_x = np.zeros([3,3]) 
         x_transpose_y = np.zeros(3)
@@ -125,31 +126,31 @@ class LinearRegression(MRJob):
             else:
                 sample_size += mat[1]
 
-        print('xtx', x_transpose_x)
-        print('determinate:', np.linalg.det(x_transpose_x))
-        print('xty', x_transpose_y)
+        # print('xtx', x_transpose_x)
+        # print('determinate:', np.linalg.det(x_transpose_x))
+        # print('xty', x_transpose_y)
 
         # now we need to solve for beta (i.e. the coefficients of the variables)
         # beta = (X′X)−1X′Y
         beta = np.linalg.inv(x_transpose_x) @ x_transpose_y
 
-        print()
-        print('coefficients derived from multiple linear regression')
-        print('interpretation: one unit increase in x impact on sentiment')
-        print('====================================================')
-        print()
+        # print()
+        # print('coefficients derived from multiple linear regression')
+        # print('interpretation: one unit increase in x impact on sentiment')
+        # print('====================================================')
+        # print()
 
-        print('intercept                       ', beta[0])
-        print('temperature                     ', beta[1])
-        print('relative change in temperature  ', beta[2])
+        # print('intercept                       ', beta[0])
+        # print('temperature                     ', beta[1])
+        # print('relative change in temperature  ', beta[2])
         # print('tweet was in morning            ', beta[3])
         # print('tweet was in afternoon          ', beta[4])
         # print('tweet was in evening            ', beta[5])
         # print('interaction count               ', beta[6])
 
-        print()
-        print('====================================================')
-        print('sample size: ', sample_size)
+        # print()
+        # print('====================================================')
+        # print('sample size: ', sample_size)
 
 
         # writing to file was a poor idea in a mapreduce context
