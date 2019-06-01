@@ -11,7 +11,7 @@ class CompareUsers(MRJob):
         user_id = list(line.keys())[0]
         beta = line[user_id]
 
-        with open("/home/student/CS_123_project/code/all_user_betas_small_copy.json") as f:
+        with open("/home/student/CS_123_project/code/all_user_betas_copy.json") as f:
             for line2 in f:
                 line2 = json.loads(line2)
 
