@@ -4,8 +4,11 @@ Regression:
 	- file works locally with a mix of fake data to represent not yet computed columns, but there have been some errors when it is run on a cluster
 	- final results from mapreduce regression are contingent on tweet-weather data nearest neighbor merge
 
-Running the timeseries cluster analysis
-	- 
+Running the timeseries analysis:
+	- Want to add location to each user's tweet sentiment time series so that some location analysis can be done. For example: analyzing all users within a 	certain distance to each other that also have similar tweet sentiments over time. Or locating the k closest people who have a similar tweet sentiment time series to each user is a possibility.
+	- Have only ran map reduce (MR_Compare_Users.py and MR_time_series.py) locally. MR_Compare_Users.py has been running for 4 hours now and no sign of ending
+	  any time soon. It may never end by the 10:00 AM deadline for this project. A test version that ran the same script on a much smaller file (about 300 lines long) was pushed to our repository for proof that the map reduce is functioning. Refer to: beta_test/part-00000
+	  So we must run it on a cluster eventually and will likely have to change the code.
 
 Merge
 	-
