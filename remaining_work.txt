@@ -17,5 +17,9 @@ Merge
 	-
 
 Cluster analysis of sentiment
-	-
+	- Ran map reduce locally, adjustment may be necessary when moving to cluster.
+	- Would like to add visualization to represent the result. 
+	- Dubious accuracy, someone please read!
+	
+Also figured out how to run MRJob without using a VM, I could show you guys if you think it'd be faster ^^
 
