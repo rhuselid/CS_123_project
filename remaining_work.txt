@@ -1,7 +1,7 @@
 Documentation of the work still to be done:
 
 Regression:
-	- file works locally with a mix of fake data to represent not yet computed columns, but there have been some errors when it is run on a cluster
+	- file works locally with a mix of real data and fake data to represent not yet computed columns, but there have been some errors when it is run on a cluster
 	- final results from mapreduce regression are contingent on tweet-weather data nearest neighbor merge
 
 Running the timeseries analysis:
