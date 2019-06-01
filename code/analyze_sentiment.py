@@ -16,11 +16,12 @@ WORD_RE = re.compile(r"[\w']+")
 
 def add_sentiment_key():
 
-    with open('sentiment_analyzed.json', 'w') as outfile:
+    with open('sentiment_and_ids.json', 'w') as outfile:
 
         with open('larger_filtered_tweets.json') as file:
             for l in file: 
                 line = json.loads(l)
+
                 if 'text' in line.keys():
                     relevant = {}
 
@@ -38,6 +39,12 @@ def add_sentiment_key():
 
                     # another way to go about this process (reduces the disk impact by culling the relevant data)
                     relevant['sentiment'] = sentiment['compound']
+
+                    try:
+                        relevant['text'] = line['text']
+                    except:
+                        print('no text')
+                        relevant['text'] = ''
 
                     try:
                         relevant['reply_count'] = line['reply_count']
@@ -79,7 +86,19 @@ def add_sentiment_key():
                         relevant['lang'] = line['lang']
                     except:
                         print('no language')
-                        relevant['lang'] = '' 
+                        relevant['lang'] = ''
+
+                    try:
+                        relevant['id'] = line['id']
+                    except:
+                        print('no id')
+                        relevant['id'] = ''
+
+                    try:
+                        relevant['user'] = line['user']
+                    except:
+                        print('no user')
+                        relevant['user'] = ''
 
                     str_dict = json.dumps(relevant, outfile)
                     outfile.write(str_dict + '\n')

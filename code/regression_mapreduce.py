@@ -7,8 +7,7 @@ import random
 import csv
 
 # inspiration on how to approach this project comes from (specifically in the yield structure):
-# https://github.com/AmazaspShumik/MapReduce-Machine-Learning/
-#        blob/master/Linear%20Regression%20MapReduce/LinearRegressionTS.py
+# https://github.com/AmazaspShumik/MapReduce-Machine-Learning/blob/master/Linear%20Regression%20MapReduce/LinearRegressionTS.py
 
 class LinearRegression(MRJob):
     # this mapreduce code is written to run a multiple linear regression in parallel 
@@ -16,23 +15,15 @@ class LinearRegression(MRJob):
         
     def mapper(self, _, l):
 
-        # toy dataset to test the regression output 
+        # commented out lines are a toy dataset to test the regression output 
         # line = line.split(',')
         # constant, temp, relative_change, morning, afternoon, evening, interactions = int(1 + random.randint(1,101)), int(1 + random.randint(1,101)), int(1 + random.randint(1,101)),int(1 + random.randint(1,101)), int(1 + random.randint(1,101)),int(1 + random.randint(1,101)), int(1 + random.randint(1,101))
         # sentiment = int(1 + random.randint(1,101))
 
-        # print('heres line:')
-        # print(line)
-        # constant, temp, relative_change, morning, afternoon, evening, interactions = 1, int(line[1]), int(line[2]), int(line[3]), int(line[4]), int(line[5]), int(line[6])
-        # print(l)
         line = json.loads(l)
-        print(line)
 
         # dependent variable (compound sentiment--positive values are positive in sentiment)
         sentiment = line['sentiment']
-        print(sentiment)
-        # sentiment = random.randint(1,101)
-
 
         # independent variables
         constant = 1
@@ -47,7 +38,8 @@ class LinearRegression(MRJob):
         ############################################################################
         # NOTE: we created a number of control variables (commented out below), but# 
         #       they threw off regression results since they lacked significant    #
-        #       variation between the tweets.                                      #
+        #       variation between the tweets (kept to see thought process and      #
+        #       datetime parsing)                                                  #
         ############################################################################
 
 
@@ -90,30 +82,22 @@ class LinearRegression(MRJob):
 
         X = np.array([constant, temp, relative_change])
         Y = np.array([sentiment])
-        # print('heres X AND Y')
-        # print(X)
-        # print(Y)
 
         x_transpose_x = np.outer(X, X)  # 3 x 3 matrix 
         x_transpose_y = X.T * Y         # 1 x 3 array
-
-        # self.x_transpose_x += np.outer(X, X)
-        # self.x_transpose_y += x*y
-        # these lines iteratively update these matrices
-        # is this thread safe to update a attribute (I don't think so)
 
         yield None, ('xtx', x_transpose_x.tolist())
         yield None, ('xty', x_transpose_y.tolist())
 
         #yield 1, list((x_transpose_x.tolist(), x_transpose_y.tolist()))
 
-    def combiner(self, num_obs, values):
+    def combiner(self, num_obs, matrices):
         print('reducing')
         sample_size = 0
         x_transpose_x = np.zeros([3,3]) 
         x_transpose_y = np.zeros(3)
 
-        for mat in values:
+        for mat in matrices:
             sample_size += 1
             
             if mat[0] == 'xty':
@@ -181,11 +165,14 @@ class LinearRegression(MRJob):
         # print('tweet was in morning            ', beta[3])
         # print('tweet was in afternoon          ', beta[4])
         # print('tweet was in evening            ', beta[5])
-        # print('number of tweet interactions    ', beta[6])
+        # print('interaction count               ', beta[6])
 
         print()
         print('====================================================')
         print('sample size: ', sample_size)
+
+
+        # writing to file was a poor idea in a mapreduce context
 
         # with open('beta_results.csv', 'w') as f:
         #     # row = beta.tolist()
