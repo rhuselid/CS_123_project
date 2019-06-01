@@ -112,7 +112,37 @@ def aggregation_helper(user_dictionary):
     return return_d
 
 
+def make_all_user_time_series(user_time_series_file):
+    '''
+    Take in file from map reduce time series and convert it to json file so
+    we can more easily work with the python objects
+    '''
+    
+    num_user_fields = 4 ## including extra comma
+    users = {}
 
+    with open(user_time_series_file) as f:
+        for line in f:
+
+                line2 = ''.join(line.split())
+                line2 = line2.split(",")
+
+                user_id = int(line2[0][:-1])
+                users[user_id] = []
+                
+                line_length = len(line2)
+
+                for i in range(line_length):
+                    if i % num_user_fields == 3:
+                        
+                        time_stamp = float(line2[i][:-1])
+                        sentiment_score = float(line2[i-1])
+                        datetime_obj = datetime.fromtimestamp(time_stamp, tz=timezone.utc)
+                        datetime_obj = datetime_obj.replace(hour=0, minute=0, second=0, tzinfo=None)
+                        string_date = datetime_obj.strftime("%d %b %Y")
+                        users[user_id].append((sentiment_score, time_stamp, string_date))
+    
+    write_to_json("all_users_time_series.json", [users])
 
 def aggregate_sentiment_index(num_users, min_lines, users_per_day, user_time_series_file):
 
@@ -125,8 +155,6 @@ def aggregate_sentiment_index(num_users, min_lines, users_per_day, user_time_ser
     d, d_inverse = create_date_indexer()
     days_accounted_for = {k:users_per_day for k in list(d_inverse.keys())}
     indexdict = {}
-    print('THIS IS DAYS ACCOUNTED FOR!:', days_accounted_for)
-    ## might also want to accumulate users randomly
 
     with open(user_time_series_file) as f:
         for line in f:
@@ -134,7 +162,7 @@ def aggregate_sentiment_index(num_users, min_lines, users_per_day, user_time_ser
                 ## Stopping condition
                 if days_accounted_for == {}:
                     return_d = aggregation_helper(users)
-                    return return_d, users
+                    return return_d
                 
                 line2 = ''.join(line.split())
                 line2 = line2.split(",")
@@ -154,8 +182,8 @@ def aggregate_sentiment_index(num_users, min_lines, users_per_day, user_time_ser
                         sentiment_score = float(line2[i-1])
                         datetime_obj = datetime.fromtimestamp(time_stamp, tz=timezone.utc)
                         datetime_obj = datetime_obj.replace(hour=0, minute=0, second=0, tzinfo=None)
-                        
-                        users[user_id].append((sentiment_score, time_stamp, datetime_obj))
+                        string_date = datetime_obj.strftime("%d %b %Y")
+                        users[user_id].append((sentiment_score, time_stamp, string_date))
                 if d[datetime_obj] not in days_accounted_for:
                     continue
                 if days_accounted_for[d[datetime_obj]] <= 0:
@@ -163,32 +191,36 @@ def aggregate_sentiment_index(num_users, min_lines, users_per_day, user_time_ser
                     continue
                 days_accounted_for[d[datetime_obj]] -= 1
 
-            # time_stamp = int(line[1].split("|")[2][:-4])
+def write_user_betas_to_file(users_time_series_dict_file, outfile_name):
 
-            # print("=======================\n")
-            # for index, element in enumerate(line2):
-            #     print("_____________________")
-            #     print("heres element: ", index)
-            #     print(element)
-            #     print("__________________")
-            # # print(line3
+    index_dict = aggregate_sentiment_index(None, None, 2, 'may31/part-00000')
+    all_users_time_series = json.loads(users_time_series_dict_file)[0]
+
+    user_betas = get_all_betas(all_users_time_series, index_dict)
+
+    with open(outfile_name, 'w') as f:
+        f.write('\n'.join(json.dumps(i) for i in user_betas) + '\n')
+    
 
 
 def get_all_betas(users_time_series_dict, index_dict):
     '''
     both inputs are the returns from the aggregate_sentiment_index function
+    user_time_series dict is actually now written in file: all_users_time_series.json
     '''
-    users_beta = {}
+    users_beta = []
 
     for user_id in users_time_series_dict:
         beta = calc_beta(users_time_series_dict, user_id, index_dict)
-        users_beta[user_id] = beta
+        d = {user_id: beta}
+        users_beta.append(d)
 
     return users_beta
 
 def calc_beta(users_time_series_dict, user_id, index_dict):
     '''
     user_time_series: user series of sentiments from user_time_series_dict dictionary
+    user_time_series dict is actually now written in file: all_users_time_series.json
     index_dict: first return from aggregate_sentiment_index
     '''
     user_time_series = users_time_series_dict[user_id]
@@ -220,6 +252,7 @@ def calc_beta(users_time_series_dict, user_id, index_dict):
     var = np.dot(index_sentiments, index_sentiments)
 
     return cov/var
+
 
 
 def user_time_series():
@@ -350,9 +383,8 @@ def user_time_series():
     return dict_time_series
 
 
-
 def write_to_json(filename, data):
-    with open(filename, "a") as json_file:
+    with open(filename, "w") as json_file:
         json.dump(data, json_file)
 
 def write_csv(given_list, filename):
