@@ -1,19 +1,43 @@
 from mrjob.job import MRJob
+import json
 
 
 class CompareUsers(MRJob):
 
     def mapper(self, _, line):
 
+        line = json.loads(line)
 
-    def combiner(self, location, sentiment):
-        yield location, list(sentiment)
+        user_id = list(line.keys())[0]
+        beta = line[user_id]
+
+        with open("/home/student/CS_123_project/code/all_user_betas.json") as f:
+            for line2 in f:
+                line2 = json.loads(line2)
+
+                user_id2 = list(line2.keys())[0]
+                beta2 = line2[user_id2]
 
 
-    def reducer(self, users, tweets_sentiments):
+                if beta != "No beta can be calculated" and beta2 != "No beta can be calculated":
+
+                    if abs(beta) - abs(beta2) < 0.05:
+                        print("Found small beta")
+                    
+                        yield user_id, user_id2
+
+                
 
 
-        yield users, tweets_sentiments
+
+
+    # def combiner(self, location, sentiment):
+    #     yield location, list(sentiment)
+
+
+    def reducer(self, user1, similarity_list):
+
+        yield user1, similarity_list
 
 
 if __name__ == '__main__':
