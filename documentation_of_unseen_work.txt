@@ -3,7 +3,8 @@
 
 Overview of issues related to tweet data
 
-In all, it took more than a week of crutial time (after the relevant code had been written) to download, process, filter, and merge the data. The json unzipping process had to be stopped since the data would have exceeded their largest disk size (4 TB). Only a portion of the unzipped files were able to be concatinated together (~400 GB) because of disk contraints. Then, this data was heavily filtered down to the relevant slice of the tweets data.
+In all, it took more than 2 weeks of crutial time (after the relevant code had been written) to download, process, filter, and merge the data. The json unzipping process had to be stopped since the data would have exceeded their largest disk size (4 TB). Only a portion of the unzipped files were able to be concatinated together (~550 GB) because of disk contraints. Then, this data was heavily filtered down to the relevant slice of the tweets data. The result is a small dataset of tweet jsons (150 MB) that we based our analysis off of, however, this was due more to archive.org and VM limitations than anything we had control over.
+
 
 Tweets Download Speed
 
