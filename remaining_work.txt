@@ -10,6 +10,9 @@ Running the timeseries analysis:
 	  any time soon. It may never end by the 10:00 AM deadline for this project. A test version that ran the same script on a much smaller file (about 300 lines long) was pushed to our repository for proof that the map reduce is functioning. Refer to: beta_test/part-00000
 	  So we must run it on a cluster eventually and will likely have to change the code.
 
+Tweets Nearest Neighbor to Weather Station:
+	- The nearest neighbor function currently requires a nested loop which iterates through two json files. I have run into a specific map reduce error which has held the code back (Posted on Piazza: "TypeError: a bytes-like object is required, not 'str'"). Once the map reduce works again, I will be able to implement the same functionality of this code much more efficiently and with other computers. 
+
 Merge
 	-
 
