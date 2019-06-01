@@ -1,17 +1,17 @@
 from mrjob.job import MRJob
 import json
-import nltk
+# import nltk
 import re
 import time_series as ts
 from datetime import datetime, timedelta
 import random
-
-nltk.download('stopwords')
-nltk.download('vader_lexicon')
-from nltk.corpus import stopwords
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
-stop_words=set(stopwords.words("english"))
 import time
+
+# nltk.download('stopwords')
+# nltk.download('vader_lexicon')
+# from nltk.corpus import stopwords
+# from nltk.sentiment.vader import SentimentIntensityAnalyzer
+# stop_words=set(stopwords.words("english"))
 
 
 WORD_RE = re.compile(r"[\w']+")
@@ -19,64 +19,53 @@ WORD_RE = re.compile(r"[\w']+")
 class TimeSeries(MRJob):
 
     def mapper(self, _, line):
-        
 
         try:
-
             line = json.loads(line)
 
         except Exception as e:
-            print()
-            print("WE have an exception here it is:")
+            print("\nWe have an exception here it is:")
             print(e)
-            # print(line[3000:3050])
             print(len(line))
-            # time.sleep(20)
-            # print(line)
-            print("==========================")
-            print()
-            # time.sleep(20)
+            print("==========================\n")
+
         else:
-            "got past the exception"
+            print("Got past the exception\n")
             filtered = ''
             
             if ts.is_tweet_of_interest(line):
                 user_id = line['user']['id']
                 tweet_id = line['id']
-                time_stamp = datetime.strptime(line['created_at'], '%a %b %d %H:%M:%S %z %Y')
+                time_stamp = datetime.strptime(line['created_at'], 
+                                               '%a %b %d %H:%M:%S %z %Y')
                 time_stamp = datetime.timestamp(time_stamp)
                 tweet_text = line['text']
-                print("about to score sentiments")
                 sentiment = line['sentiment']
+                
+                '''
+                Before, this mapper would also score sentiments but then a 
+                teammate decided to filter the corpus of tweets through a
+                script and made the sentiment_and_ids.json file which made
+                this map reduce much faster and simpler for us.
+                '''
                 # for word in WORD_RE.findall(tweet_text):
                 #     if word not in stop_words:
                 #         if filtered:
                 #             filtered += ' '
                 #         filtered += str(word)
-                # sentiment = SentimentIntensityAnalyzer().polarity_scores(filtered)['compound']
-                print("about to yield")
-                value_string = "," + str(tweet_id) + ',' + str(sentiment) + ',' + str(time_stamp)
+                # sentiment = SentimentIntensityAnalyzer()\
+                # .polarity_scores(filtered)['compound']
+
+                value_string = "," + str(tweet_id) + ',' + str(sentiment) + \
+                               ',' + str(time_stamp)
+                
                 yield user_id, value_string
-        
-
-
-
-
-    # def combiner(self, location, sentiment):
- #        yield location, list(sentiment)
 
 
     def reducer(self, users, tweets_sentiments):
-        # print("arrived to reducer")
 
-        ## No repeats
+        ## Eliminate duplicate tweets through making a set
         tweets_sentiments = list(set(tweets_sentiments))
-        # print(set_tweets_sentiments)
-        # print(set_tweets_sentiments)
-
-        # sentiments = [x[1] for x in set_tweets_sentiments]
-
-        ## STILL HAVE TO ADD THE TIME TO EACH SENTIMENT
 
         yield users, str(tweets_sentiments)[2:-2]
 

@@ -9,7 +9,7 @@ Getting the data to be processed in a time effective manner (even though it requ
 
 Tweets Download Speed
 
-The servers that we are downloading twitter data from we very slow due to things out of our control. Runing the bash script to get these files required using the screen command and 30+ hours each time that the data needed to be downloaded (this was repeated twice). Then these tar files had to be compiled into a single omnibus file through another bash script.
+The servers that we are downloading twitter data from we very slow due to things out of our control. Running the bash script to get these files required using the screen command and 30+ hours each time that the data needed to be downloaded (this was repeated twice). Then these tar files had to be compiled into a single omnibus file through another bash script.
 
 The process had to be repeated twice since unzipping the files increased the data's harddrive footprint more than expected, thus a 4 TB VM had to be rented to fit the data during all of the intermediary steps.
 
@@ -18,3 +18,9 @@ Weather Data Misformating
 
 Data from the NOAA was very poorly formatted and required the dataset to be broken up and remerged in order for the data to be meaningful. sqlite3 could not handle a dataset of this size so another database library had to be used, but mysql was also not ideally situated to deal with a dataset of this size (it caused the VM to continually freeze).
 
+
+
+Time Series:
+
+The fact that we had downloading issues with our data made time series analysis very hard. In the beginning it was difficult to understand the shape of the time series data that we were dealing with. Statistically it's difficult to do any analysis without having full data that one understands. A lot of time was
+originally spent assuming the data would be neat but we soon understood that each user did not have a tweet every single day and that there were many repeat tweets. Due to each user not having a tweet every single day, this meant that comparing users' time series to each other would be a relatively atrocious approach to time series analysis even though statistical analysis is not the point of this assignment. So re-engineering happened often due to the changing format of the data, the slow data download speeds, the uncertainty behind what sort of analysis one could even do given data that we didn't have yet, and also the fact that the final master data set as of June 1 was in a slightly different structure than earlier in the project.
