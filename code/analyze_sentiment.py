@@ -7,12 +7,12 @@ nltk.download('stopwords')
 nltk.download('vader_lexicon')
 from nltk.corpus import stopwords
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
-stop_words=set(stopwords.words("english"))
+stop_words = set(stopwords.words("english"))
 
 WORD_RE = re.compile(r"[\w']+")
 
-# this file is functionally the same as the mapreduce version, but this does not rely on mapreduce.
-# (this file was created to deal with analyzing the sentiment on a relatively small json file)
+# this file is functionally the same as the mapreduce version of a similar name, but this does 
+# file is meant to be run on a single machine.
 
 def add_sentiment_key():
 
@@ -23,6 +23,8 @@ def add_sentiment_key():
                 line = json.loads(l)
 
                 if 'text' in line.keys():
+
+                    # writing only the relevant keys to output to save on file size
                     relevant = {}
 
                     text = line['text']
@@ -37,7 +39,6 @@ def add_sentiment_key():
 
                     sentiment = SentimentIntensityAnalyzer().polarity_scores(filtered)
 
-                    # another way to go about this process (reduces the disk impact by culling the relevant data)
                     relevant['sentiment'] = sentiment['compound']
 
                     try:

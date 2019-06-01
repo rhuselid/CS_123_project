@@ -6,7 +6,7 @@ from dateutil.parser import parse
 import random
 import csv
 
-# inspiration on how to approach this project comes from (specifically in the yield structure):
+# inspiration on how to approach mapreduce linear regression comes from (specifically in the yield structure):
 # https://github.com/AmazaspShumik/MapReduce-Machine-Learning/blob/master/Linear%20Regression%20MapReduce/LinearRegressionTS.py
 
 class LinearRegression(MRJob):
@@ -15,11 +15,6 @@ class LinearRegression(MRJob):
         
     def mapper(self, _, l):
 
-        # commented out lines are a toy dataset to test the regression output 
-        # line = line.split(',')
-        # constant, temp, relative_change, morning, afternoon, evening, interactions = int(1 + random.randint(1,101)), int(1 + random.randint(1,101)), int(1 + random.randint(1,101)),int(1 + random.randint(1,101)), int(1 + random.randint(1,101)),int(1 + random.randint(1,101)), int(1 + random.randint(1,101))
-        # sentiment = int(1 + random.randint(1,101))
-
         line = json.loads(l)
 
         # dependent variable (compound sentiment--positive values are positive in sentiment)
@@ -27,6 +22,8 @@ class LinearRegression(MRJob):
 
         # independent variables
         constant = 1
+
+        # these lines are fake inputs for testing purposes until the twitter-weather merge is complete
         temp = random.randint(1,1000)
         season_avg = random.randint(1,1000)
         relative_change = temp - season_avg
@@ -105,12 +102,6 @@ class LinearRegression(MRJob):
             elif mat[0] == 'xtx':
                 x_transpose_x += np.array(mat[1])
             
-            # arr_xtx = np.array(mat[0])
-            # arr_xty = np.array(mat[1])
-            # sample_size += 1
-            # x_transpose_x += arr_xtx
-            # x_transpose_y += arr_xty
-
         # print(list((x_transpose_x.tolist(), x_transpose_y.tolist(), sample_size)))
         # yield 1, list((x_transpose_x.tolist(), x_transpose_y.tolist(), sample_size))
 
@@ -138,20 +129,9 @@ class LinearRegression(MRJob):
         print('determinate:', np.linalg.det(x_transpose_x))
         print('xty', x_transpose_y)
 
-        # for val in values:
-        #     #print(val)
-        #     arr_xtx = np.array(val[0])
-        #     arr_xty = np.array(val[1])
-
-        #     x_transpose_x += arr_xtx
-        #     x_transpose_y += arr_xty
-        #     sample_size += val[2]
-
         # now we need to solve for beta (i.e. the coefficients of the variables)
         # beta = (X′X)−1X′Y
-
         beta = np.linalg.inv(x_transpose_x) @ x_transpose_y
-        #beta = np.linalg.solve(x_transpose_x, x_transpose_y)
 
         print()
         print('coefficients derived from multiple linear regression')
