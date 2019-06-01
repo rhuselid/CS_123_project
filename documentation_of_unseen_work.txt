@@ -1,18 +1,17 @@
 
 
-
 Overview of issues related to tweet data
 
-In all, it took more than 2 weeks of crutial time (after the relevant code had been written) to download, process, filter, and merge the data. The json unzipping process had to be stopped since the data would have exceeded their largest disk size (4 TB). Only a portion of the unzipped files were able to be concatinated together (~550 GB) because of disk contraints. Then, this data was heavily filtered down to the relevant slice of the tweets data. The result is a small dataset of tweet jsons (150 MB) that we based our analysis off of, however, this was due more to archive.org and VM limitations than anything we had control over.
+In all, it took more than 2 weeks of crutial time (after the relevant code had been written) to download, process, filter, and merge the data. The json unzipping process had to be stopped since the data would have exceeded their largest disk size (4 TB). Only a portion of the unzipped files were able to be concatinated together (~550 GB) because of disk contraints (much of disk space was filled with the unzipped tar files). Then, this data was heavily filtered down to the relevant slice of the tweets data. The result is a small dataset of tweet jsons (150 MB) that we based our analysis off of, however, the data we worked with was indeed large in this project.
+
+Getting the data to be processed in a time effective manner (even though it required 2 weeks+) meant I frequently had to set late night alarms to make sure we would not miss any computational time and did not go above a VM's disk size.
 
 
 Tweets Download Speed
 
-The servers that we are downloading twitter data from we very slow due to things out of our control. Runing the bash script to get these files required using the screen command and 30+ hours each time that the data needed to be downloaded (this was repeated twice). Then these tar files had to be compiled into a single omnibus file through another bash script (at which point the file was added to a google cloud bucket). 
+The servers that we are downloading twitter data from we very slow due to things out of our control. Runing the bash script to get these files required using the screen command and 30+ hours each time that the data needed to be downloaded (this was repeated twice). Then these tar files had to be compiled into a single omnibus file through another bash script.
 
 The process had to be repeated twice since unzipping the files increased the data's harddrive footprint more than expected, thus a 4 TB VM had to be rented to fit the data during all of the intermediary steps.
-
-Opening these tar files and then unzipping each of the json files within them took multiple days because of the size of the dataset.
 
 
 Weather Data Misformating

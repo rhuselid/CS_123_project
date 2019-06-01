@@ -1,4 +1,15 @@
-Documentation of the work to be done over the weekend:
+Documentation of the work still to be done:
 
-Running the regressions (they have been shown to work with a toy dataset)
-Running the timeseries cluster analysis 
+Regression:
+	- file works locally with a mix of fake data to represent not yet computed columns, but there have been some errors when it is run on a cluster
+	- final results from mapreduce regression are contingent on tweet-weather data nearest neighbor merge
+
+Running the timeseries cluster analysis
+	- 
+
+Merge
+	-
+
+Cluster analysis of sentiment
+	-
+
