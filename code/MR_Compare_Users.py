@@ -21,8 +21,10 @@ class CompareUsers(MRJob):
 
                 if beta != "No beta can be calculated" and beta2 != "No beta can be calculated":
 
-                    if (abs(beta) - abs(beta2)) < 0.05:
-                        print(abs(beta) ,abs(beta2))
+                    difference = abs(beta - beta2)
+
+                    if difference < 0.05:
+                        print(difference)
                         print("Found small beta")
                     
                         yield user_id, user_id2
