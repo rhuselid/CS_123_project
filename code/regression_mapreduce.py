@@ -6,7 +6,7 @@ from dateutil.parser import parse
 import random
 import csv
 
-# inspiration on how to approach mapreduce linear regression comes from (specifically in the yield structure):
+# inspiration on how to approach mapreduce linear regression comes from (specifically in the yield structure + updating matrices):
 # https://github.com/AmazaspShumik/MapReduce-Machine-Learning/blob/master/Linear%20Regression%20MapReduce/LinearRegressionTS.py
 
 class LinearRegression(MRJob):
