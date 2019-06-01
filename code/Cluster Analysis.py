@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# NOTE: This file also exists as a Jupyter notebook (just for ease of viewing). But in case, opening that poses difficulty, the .py version is placed here.
 # # Research question: 
 # ## How do different areas of the US compare in regards to Twitter Sentiment? Are there particular areas in the US with remarkably high sentiment?
 # 
