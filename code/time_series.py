@@ -4,6 +4,7 @@ import re
 import nltk
 import csv
 from datetime import date, datetime, timedelta, timezone
+import numpy as np
 
 users = {}
 dict_time_series = {}
@@ -105,6 +106,9 @@ def aggregation_helper(user_dictionary):
             else:
                 return_d[item[2]][0] += item[0]
                 return_d[item[2]][1] += 1
+    return_d = {key:[return_d[key][0]/return_d[key][1], return_d[key][1]] for key in return_d}
+    return_d = {key:return_d[key][0] for key in return_d}
+    
     return return_d
 
 
@@ -127,12 +131,10 @@ def aggregate_sentiment_index(num_users, min_lines, users_per_day, user_time_ser
     with open(user_time_series_file) as f:
         for line in f:
                 
+                ## Stopping condition
                 if days_accounted_for == {}:
-
                     return_d = aggregation_helper(users)
-
-
-                    return return_d
+                    return return_d, users
                 
                 line2 = ''.join(line.split())
                 line2 = line2.split(",")
@@ -172,7 +174,52 @@ def aggregate_sentiment_index(num_users, min_lines, users_per_day, user_time_ser
             # # print(line3
 
 
+def get_all_betas(users_time_series_dict, index_dict):
+    '''
+    both inputs are the returns from the aggregate_sentiment_index function
+    '''
+    users_beta = {}
 
+    for user_id in users_time_series_dict:
+        beta = calc_beta(users_time_series_dict, user_id, index_dict)
+        users_beta[user_id] = beta
+
+    return users_beta
+
+def calc_beta(users_time_series_dict, user_id, index_dict):
+    '''
+    user_time_series: user series of sentiments from user_time_series_dict dictionary
+    index_dict: first return from aggregate_sentiment_index
+    '''
+    user_time_series = users_time_series_dict[user_id]
+    index_comparison = [[],[]]
+
+    for data_point in user_time_series:
+        user_sentiment = data_point[0]
+        
+        user_date = data_point[2]
+
+        index_sentiment = index_dict[user_date]
+
+        index_comparison[0].append(index_sentiment)
+        index_comparison[1].append(user_sentiment)
+    
+    user_sentiments = np.array(index_comparison[1])
+    index_sentiments = np.array(index_comparison[0])
+
+    if len(index_sentiments) == 1:
+        return "No beta can be calculated"
+
+    mean_user = np.mean(user_sentiments)
+    mean_index = np.mean(index_sentiments)
+
+    user_sentiments -= mean_user
+    index_sentiments -= mean_index
+
+    cov = np.dot(user_sentiments, index_sentiments)
+    var = np.dot(index_sentiments, index_sentiments)
+
+    return cov/var
 
 
 def user_time_series():
@@ -428,3 +475,6 @@ Potential Idea: does day of the week or time affect sentiment? SImple OLS
 
 '''
 
+
+
+#%%
