@@ -1,10 +1,9 @@
 import json
 import numpy as np
 from mrjob.job import MRJob
-from datetime import datetime
-from dateutil.parser import parse
 import random
-import csv
+# from datetime import datetime
+# from dateutil.parser import parse
 
 # inspiration on how to approach mapreduce linear regression comes from (specifically in the yield structure + updating matrices):
 # https://github.com/AmazaspShumik/MapReduce-Machine-Learning/blob/master/Linear%20Regression%20MapReduce/LinearRegressionTS.py
@@ -15,16 +14,18 @@ class LinearRegression(MRJob):
         
     def mapper(self, _, l):
 
+        # print(l)
         line = json.loads(l)
+        # print(line)
 
         # dependent variable (compound sentiment--positive values are positive in sentiment)
-        # sentiment = line['sentiment']
-        sentiment = random.randint(1,1000)
+        sentiment = line['sentiment']
+        # # sentiment = random.randint(1,1000)
 
-        # independent variables
+        # # independent variables
         constant = 1
 
-        # these lines are fake inputs for testing purposes until the twitter-weather merge is complete
+        # # these lines are fake inputs for testing purposes until the twitter-weather merge is complete
         temp = random.randint(1,1000)
         season_avg = random.randint(1,1000)
         relative_change = temp - season_avg
@@ -87,7 +88,7 @@ class LinearRegression(MRJob):
         yield None, ('xtx', x_transpose_x.tolist())
         yield None, ('xty', x_transpose_y.tolist())
 
-        #yield 1, list((x_transpose_x.tolist(), x_transpose_y.tolist()))
+        # yield None, list(line) 
 
     def combiner(self, num_obs, matrices):
         # print('reducing')
@@ -103,12 +104,14 @@ class LinearRegression(MRJob):
             elif mat[0] == 'xtx':
                 x_transpose_x += np.array(mat[1])
             
-        # print(list((x_transpose_x.tolist(), x_transpose_y.tolist(), sample_size)))
-        # yield 1, list((x_transpose_x.tolist(), x_transpose_y.tolist(), sample_size))
+        # # print(list((x_transpose_x.tolist(), x_transpose_y.tolist(), sample_size)))
+        # # yield 1, list((x_transpose_x.tolist(), x_transpose_y.tolist(), sample_size))
 
         yield None, ('xtx', x_transpose_x.tolist())
         yield None, ('xty', x_transpose_y.tolist())
         yield None, ('sample_size', sample_size)
+
+        # yield num_obs, list(matrices)
         
 
     def reducer(self, name, matrices):
@@ -126,45 +129,47 @@ class LinearRegression(MRJob):
             else:
                 sample_size += mat[1]
 
-        # print('xtx', x_transpose_x)
-        # print('determinate:', np.linalg.det(x_transpose_x))
-        # print('xty', x_transpose_y)
+        # # print('xtx', x_transpose_x)
+        # # print('determinate:', np.linalg.det(x_transpose_x))
+        # # print('xty', x_transpose_y)
 
-        # now we need to solve for beta (i.e. the coefficients of the variables)
-        # beta = (X′X)−1X′Y
+        # # now we need to solve for beta (i.e. the coefficients of the variables)
+        # # beta = (X′X)−1X′Y
         beta = np.linalg.inv(x_transpose_x) @ x_transpose_y
 
-        # print()
-        # print('coefficients derived from multiple linear regression')
-        # print('interpretation: one unit increase in x impact on sentiment')
-        # print('====================================================')
-        # print()
+        # # print()
+        # # print('coefficients derived from multiple linear regression')
+        # # print('interpretation: one unit increase in x impact on sentiment')
+        # # print('====================================================')
+        # # print()
 
-        # print('intercept                       ', beta[0])
-        # print('temperature                     ', beta[1])
-        # print('relative change in temperature  ', beta[2])
-        # print('tweet was in morning            ', beta[3])
-        # print('tweet was in afternoon          ', beta[4])
-        # print('tweet was in evening            ', beta[5])
-        # print('interaction count               ', beta[6])
+        # # print('intercept                       ', beta[0])
+        # # print('temperature                     ', beta[1])
+        # # print('relative change in temperature  ', beta[2])
+        # # print('tweet was in morning            ', beta[3])
+        # # print('tweet was in afternoon          ', beta[4])
+        # # print('tweet was in evening            ', beta[5])
+        # # print('interaction count               ', beta[6])
 
-        # print()
-        # print('====================================================')
-        # print('sample size: ', sample_size)
+        # # print()
+        # # print('====================================================')
+        # # print('sample size: ', sample_size)
 
 
-        # writing to file was a poor idea in a mapreduce context
+        # # writing to file was a poor idea in a mapreduce context
 
-        # with open('beta_results.csv', 'w') as f:
-        #     # row = beta.tolist()
-        #     # print(row)
-        #     # writer = csv.writer(f)
-        #     # writer.writerow(row)
-        #     f.write(str(beta))
+        # # with open('beta_results.csv', 'w') as f:
+        # #     # row = beta.tolist()
+        # #     # print(row)
+        # #     # writer = csv.writer(f)
+        # #     # writer.writerow(row)
+        # #     f.write(str(beta))
 
-        # #f.close()
+        # # #f.close()
 
         yield 'beta values: ', beta.tolist()
+
+        # yield name, list(matrices)
 
 
 

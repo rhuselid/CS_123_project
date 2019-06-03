@@ -68,27 +68,37 @@ class AnalyzeSentiment(MRJob):
 
             new_line = line
             new_line['sentiment'] = sentiment['compound']
+
+            str_new_line = str(new_line)
             
-            yield None, new_line
+            yield None, str_new_line
 
     # def combiner(self, _, new_lines):
     #     yield None, new_lines
 
     def reducer(self, _, new_lines):
 
+        for str_line in new_lines:
+            str_line += '\n'
+
+            yield None, str_line
+
+        # this output is then piped into a new file and filtered by another file: 
+
         # creates a new json file that includes this column this was augmented to since 
         # this does not represent good mapreduce practice (so another similar script 
         # was written)
-        with open('data_with_sentiment.json', 'w') as f:
-            for line in new_lines:
-                print('added a new line')
-                print(line)
-                json.dump(line, f)
 
-            print(f)
-        f.close()
+        # with open('data_with_sentiment.json', 'w') as f:
+        #     for line in new_lines:
+        #         print('added a new line')
+        #         print(line)
+        #         json.dump(line, f)
 
-        yield None, None
+        #     print(f)
+        # f.close()
+
+        # yield None, None
 
 
 if __name__ == '__main__':

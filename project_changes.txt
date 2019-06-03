@@ -1,0 +1,10 @@
+
+
+Changes since Saturday morning deadline
+
+
+Minor Things
+- Removed print statements within mapreduce code
+- got sentiment analysis mapreduce to work (previously was using a regular python approach reading line by line)
+- removed unnecessary imports (e.g. removing MRJob import from the top of sentiment_analysis.py which caused some confusion)
+

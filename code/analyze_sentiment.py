@@ -1,4 +1,3 @@
-from mrjob.job import MRJob
 import json
 import nltk
 import re
