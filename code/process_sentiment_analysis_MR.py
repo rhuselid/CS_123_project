@@ -16,11 +16,13 @@ def create_new_json():
 				# this cuts off the null
 
 				try:
+					# try line since occasionally tweets with certian types of emoji's cannot be
+					# hashed, which throws an error. This appears to be a small subset of all tweets
+					# so it would not matter for data size in a big data context
 					line = literal_eval(str_dict)
 					outfile.write(line)
 				except:
 					pass
-
 
 
 if __name__ == '__main__':

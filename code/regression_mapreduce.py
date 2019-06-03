@@ -1,24 +1,35 @@
+# import os
+# os.system('sudo pip3 install numpy')
+# os.system('sudo pip3 install random')
+
 import json
-import numpy as np
+# import numpy as np
 from mrjob.job import MRJob
 import random
 # from datetime import datetime
 # from dateutil.parser import parse
 
-# inspiration on how to approach mapreduce linear regression comes from (specifically in the yield structure + updating matrices):
+# inspiration on how to approach mapreduce linear regression comes from (specifically in the yield structure):
 # https://github.com/AmazaspShumik/MapReduce-Machine-Learning/blob/master/Linear%20Regression%20MapReduce/LinearRegressionTS.py
 
 class LinearRegression(MRJob):
+    # Important Note: this file is an MapReduce implimentation of regression 
+    #                   with just lists (no numpy). This was necessary because
+    #                   of import permission issues running in a cluster.
+
+
     # this mapreduce code is written to run a multiple linear regression in parallel 
     # and is intended to be run on a cluster.
-        
+
+    # def __init__(self, *args, **kwargs):
+    #     super(LinearRegression, self).__init__(*args, **kwargs)
+    #     os.system('sudo -H pip3 install numpy')
+    #     import numpy
+
     def mapper(self, _, l):
-
-        # print(l)
         line = json.loads(l)
-        # print(line)
 
-        # dependent variable (compound sentiment--positive values are positive in sentiment)
+        # dependent variable (compound sentiment--positive values are positive in senti+ment)
         sentiment = line['sentiment']
         # # sentiment = random.randint(1,1000)
 
@@ -27,8 +38,9 @@ class LinearRegression(MRJob):
 
         # # these lines are fake inputs for testing purposes until the twitter-weather merge is complete
         temp = random.randint(1,1000)
-        season_avg = random.randint(1,1000)
-        relative_change = temp - season_avg
+        # temp = 1
+        # season_avg = 1.5
+        # relative_change = temp - season_avg
 
         # temp = line['temp']
         # season_avg = line['season_avg']
@@ -79,55 +91,171 @@ class LinearRegression(MRJob):
         # if 'favorite_count' in line.keys():
         #     interactions += int(line['favorite_count'])
 
-        X = np.array([constant, temp, relative_change])
-        Y = np.array([sentiment])
+        # X_n = np.array([constant, temp])
+        # Y_n = np.array([sentiment])
 
-        x_transpose_x = np.outer(X, X)  # 3 x 3 matrix 
-        x_transpose_y = X.T * Y         # 1 x 3 array
+        X = [constant, temp]
 
-        yield None, ('xtx', x_transpose_x.tolist())
-        yield None, ('xty', x_transpose_y.tolist())
+        # compute outer product:
+        outer_product = []
+        for x1 in X:
+            row = []
+            for x2 in X:
+                row.append(x1*x2)
+            outer_product.append(row)
+
+        x_transpose_y = []
+        for x3 in X:
+            x_transpose_y.append(x3 * sentiment)
+
+        # print('out prod', outer_product, 'np version', np.outer(X_n, X_n))
+        # print('xty', x_transpose_y, 'np version', X_n.T * Y_n)
+        # print('xty', x_transpose_y)
+        # x_transpose_x = np.outer(X, X)  # 3 x 3 matrix
+        # x_transpose_y = X.T * Y         # 1 x 3 array
+
+        # yield None, ('xtx', x_transpose_x.tolist())
+        # yield None, ('xty', x_transpose_y.tolist())
+
+        yield None, ('xtx', outer_product)
+        yield None, ('xty', x_transpose_y)
 
         # yield None, list(line) 
 
-    def combiner(self, num_obs, matrices):
+    def combiner(self, _, matrices):
         # print('reducing')
         sample_size = 0
-        x_transpose_x = np.zeros([3,3]) 
-        x_transpose_y = np.zeros(3)
+        # x_transpose_xn = np.zeros([2,2]) 
+        # x_transpose_yn = np.zeros(2)
+        x_transpose_x = [[0,0], [0,0]]
+        x_transpose_y = [0] * 2
 
         for mat in matrices:
             sample_size += 1
             
-            if mat[0] == 'xty':
-                x_transpose_y += np.array(mat[1])
-            elif mat[0] == 'xtx':
-                x_transpose_x += np.array(mat[1])
+            if mat[0] == 'xtx':
+                # x_transpose_xn += np.array(mat[1])
+                for ir, row in enumerate(mat[1]):
+                    for ic, val in enumerate(row):
+                        x_transpose_x[ir][ic] += val
+            elif mat[0] == 'xty':
+                # x_transpose_yn += np.array(mat[1])
+                for i, val in enumerate(mat[1]):
+                    # print(x_transpose_y)
+                    x_transpose_y[i] += val
+
+        # sample_size = 0
+        # x_transpose_x = [[0] * 2] * 2
+        # x_transpose_y = [0] * 2
+        # print(list(matrices))
+        # # print('xtx', x_transpose_x)
+        # # print('xty', x_transpose_y)
+
+        # for mat in matrices:
+        #     sample_size += 1
             
+        #     if mat[0] == 'xtx':
+        #         for ir, row in enumerate(mat[1]):
+        #             print(row)
+        #             for ic, val in enumerate(row):
+        #                 print(val)
+        #                 x_transpose_x[ir][ic] += val
+        #     elif mat[0] == 'xty':
+        #         for i, val in enumerate(mat[1]):
+        #             # print(x_transpose_y)
+        #             x_transpose_y[i] += val
+        
+        # print('list xtx: ', x_transpose_x, 'np version', x_transpose_xn)
+        # print('list xty: ', x_transpose_y, 'np version', x_transpose_yn)
         # # print(list((x_transpose_x.tolist(), x_transpose_y.tolist(), sample_size)))
         # # yield 1, list((x_transpose_x.tolist(), x_transpose_y.tolist(), sample_size))
 
-        yield None, ('xtx', x_transpose_x.tolist())
-        yield None, ('xty', x_transpose_y.tolist())
-        yield None, ('sample_size', sample_size)
+        # yield None, ('xtx', x_transpose_x.tolist())
+        # yield None, ('xty', x_transpose_y.tolist())
+        # yield None, ('sample_size', sample_size)
 
-        # yield num_obs, list(matrices)
+
+        yield None, ('xtx', x_transpose_x)
+        yield None, ('xty', x_transpose_y)
+        yield None, ('sample_size', sample_size)
         
 
-    def reducer(self, name, matrices):
-        # print('combining')
+    def reducer(self, _, matrices):
         sample_size = 0
-        x_transpose_x = np.zeros([3,3]) 
-        x_transpose_y = np.zeros(3)
+        # x_transpose_xn = np.zeros([2,2]) 
+        # x_transpose_yn = np.zeros(2)
+        x_transpose_x = [[0,0], [0,0]]
+        x_transpose_y = [0] * 2
 
-        for mat in matrices:
-
-            if mat[0] == 'xty':
-                x_transpose_y += np.array(mat[1])
-            elif mat[0] == 'xtx':
-                x_transpose_x += np.array(mat[1])
+        for mat in matrices:            
+            if mat[0] == 'xtx':
+                # x_transpose_xn += np.array(mat[1])
+                for ir, row in enumerate(mat[1]):
+                    for ic, val in enumerate(row):
+                        x_transpose_x[ir][ic] += val
+            elif mat[0] == 'xty':
+                # x_transpose_yn += np.array(mat[1])
+                for i, val in enumerate(mat[1]):
+                    # print(x_transpose_y)
+                    x_transpose_y[i] += val
             else:
                 sample_size += mat[1]
+
+        # print('list xtx: ', x_transpose_x, 'np version', x_transpose_xn)
+        # print('list xty: ', x_transpose_y, 'np version', x_transpose_yn)
+
+        # sample_size = 0
+        # x_transpose_x = [[0,0], [0,0]]
+        # x_transpose_y = [0] * 2
+        # # print(x_transpose_x)
+        # # print(x_transpose_x)
+        # print('hi')
+
+        # for mat in matrices:
+        #     sample_size += 1
+            
+        #     if mat[0] == 'xtx':
+        #         # print('heres xtx', mat[1])
+        #         for ir, row in enumerate(mat[1]):
+        #             for ic, val in enumerate(row):
+        #                 x_transpose_x[ir][ic] += val
+        #     elif mat[0] == 'xty':
+        #         # print('heres xty', mat[1])
+        #         for i, val in enumerate(mat[1]):
+        #             x_transpose_y[i] += val
+
+        inverse = [[0, 0], [0, 0]]
+        determinate = (x_transpose_x[0][0] * x_transpose_x[1][1] - x_transpose_x[0][1] * x_transpose_x[1][0])
+
+        unnormalized_inv = [[x_transpose_x[1][1], -1 * x_transpose_x[0][1]], 
+                            [-1 * x_transpose_x[1][0], x_transpose_x[0][0]]]
+
+        for ir, row in enumerate(unnormalized_inv):
+            for ic, val in enumerate(row):
+                inverse[ir][ic] = (1 / determinate) * unnormalized_inv[ir][ic]
+
+        beta = [0, 0]
+
+        for i, l in enumerate(inverse):
+            for j, val in enumerate(l):
+                beta[i] += inverse[i][j] * x_transpose_y[j]
+
+        yield 'beta vals: ', beta
+
+
+        # print('combining')
+        # sample_size = 0
+        # x_transpose_x = np.zeros([3,3]) 
+        # x_transpose_y = np.zeros(3)
+
+        # for mat in matrices:
+
+        #     if mat[0] == 'xty':
+        #         x_transpose_y += np.array(mat[1])
+        #     elif mat[0] == 'xtx':
+        #         x_transpose_x += np.array(mat[1])
+        #     else:
+        #         sample_size += mat[1]
 
         # # print('xtx', x_transpose_x)
         # # print('determinate:', np.linalg.det(x_transpose_x))
@@ -135,7 +263,7 @@ class LinearRegression(MRJob):
 
         # # now we need to solve for beta (i.e. the coefficients of the variables)
         # # beta = (X′X)−1X′Y
-        beta = np.linalg.inv(x_transpose_x) @ x_transpose_y
+        # beta = np.linalg.inv(x_transpose_x) @ x_transpose_y
 
         # # print()
         # # print('coefficients derived from multiple linear regression')
@@ -167,7 +295,7 @@ class LinearRegression(MRJob):
 
         # # #f.close()
 
-        yield 'beta values: ', beta.tolist()
+        # yield 'beta values: ', beta.tolist()
 
         # yield name, list(matrices)
 

@@ -10,17 +10,15 @@ from mrjob.job import MRJob
 import json
 import nltk
 import re
-
-nltk.download('stopwords')
-nltk.download('vader_lexicon')
 from nltk.corpus import stopwords
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
-stop_words=set(stopwords.words("english"))
+
+# nltk.download('stopwords')
+# nltk.download('vader_lexicon')
+
 
 # help from: https://www.datacamp.com/community/tutorials/text-analytics-beginners-nltk
 # and https://opensourceforu.com/2016/12/analysing-sentiments-nltk/
-
-WORD_RE = re.compile(r"[\w']+")
 
 class AnalyzeSentiment(MRJob):
     # the purpose of this code is to take a json and read is to reduce a large dataset of 
@@ -31,6 +29,14 @@ class AnalyzeSentiment(MRJob):
     #     no removed stop words: 0m36.641s
 
     # since this did not significantly change the run time, we removed stop words in tweets.
+
+    def __init__(self, *args, **kwargs):
+        super(AnalyzeSentiment, self).__init__(*args, **kwargs)
+        nltk.download('stopwords')
+        nltk.download('vader_lexicon')
+        self.stop_words = set(stopwords.words("english"))
+        self.get_words = re.compile(r"[\w']+")
+
 
     def mapper(self, _, line):
         line = json.loads(line)
@@ -56,8 +62,8 @@ class AnalyzeSentiment(MRJob):
         if 'text' in line.keys():
             text = line['text']
             filtered = ''
-            for word in WORD_RE.findall(text):
-                if word not in stop_words:
+            for word in self.get_words.findall(text):
+                if word not in self.stop_words:
                     # not including stop words helps to reduce the noise
 
                     if filtered:
