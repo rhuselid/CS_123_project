@@ -1,7 +1,6 @@
 
 import csv
 import pandas as pd
-import json
 
 top = 49.3457868 # north lat
 bottom =  24.7433195 # south lat
@@ -23,42 +22,14 @@ temp = merge_dropped[merge_dropped['weathertype'].isin(temperature_type)]
 temp_avg = temp.groupby(["stationid", "date"]).quantity.mean()
 temp_df = temp_avg.to_frame().reset_index()
 
-temp_df_merge = pd.merge(temp_df, stationdata, on="stationid", how="left").drop(["empty1", "empty2", "empty3", "elevation"], axis=1)
+temp_df_merge = pd.merge(temp_df, stationdata, on="stationid", how="left").drop(["empty1", "empty2", "empty3"], axis=1)
 temp_df_merge.rename(columns={'quantity':'average_temp'}, inplace=True)
 
 US_temp_df = temp_df_merge[(temp_df_merge['latitude'] > bottom) & (temp_df_merge['latitude'] < top)]
 US_temp_df = US_temp_df[(US_temp_df['longitude'] > left) & (US_temp_df['longitude'] < right)]
 
-
-# print(US_temp_df["date"])
-# print(US_temp_df)
-# jsonfilepath = "US_temperature.json"
-jsonfile = open('US_temperature.json', 'w')
 US_temp_df.to_csv("US_temperature.csv")
-data = {}
-with open("US_temperature.csv") as csvFile:
-	csvReader = csv.DictReader(csvFile)
-	for csvRow in csvReader:
-		json.dump(csvRow, jsonfile)
-		jsonfile.write('\n')
-		# json.dump(csvRow, )
-		# stationid = csvRow["stationid"]
-		# date = csvRow["date"]
-		# key = stationid + date
-		# data[key] = csvRow
-    	# json.dump(csvRow, jsonfile)
-    	# jsonfile.write('\n')
-
-# data = [data]
-
-# with open(jsonfilepath, "w") as f:
-# 	f.write('\n'.join(json.dumps(i) for i in data) + '\n')
-# with open(jsonfilepath, "w") as jsonFile:
-# 	s = json_dumps
-# 	jsonFile.write(json.dumps(data, indent=4))
-
-
-# A = US_temp_df.to_json("US_temperature.json")
+US_temp_df.to_json("US_temperature.json")
 
 # for index, row in merge_dropped.itterows():
 # 	if row.
