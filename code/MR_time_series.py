@@ -24,13 +24,11 @@ class TimeSeries(MRJob):
             line = json.loads(line)
 
         except Exception as e:
-            print("\nWe have an exception here it is:")
+            print("\nInvalid tweet dict found:")
             print(e)
-            print(len(line))
             print("==========================\n")
 
         else:
-            print("Got past the exception\n")
             filtered = ''
             
             if ts.is_tweet_of_interest(line):
@@ -41,6 +39,8 @@ class TimeSeries(MRJob):
                 time_stamp = datetime.timestamp(time_stamp)
                 tweet_text = line['text']
                 sentiment = line['sentiment']
+                ##_____________________________work after initial submission
+                lat, lon = line['geo']['coordinates']
                 
                 '''
                 Before, this mapper would also score sentiments but then a 
@@ -57,7 +57,8 @@ class TimeSeries(MRJob):
                 # .polarity_scores(filtered)['compound']
 
                 value_string = "," + str(tweet_id) + ',' + str(sentiment) + \
-                               ',' + str(time_stamp)
+                               ',' + str(time_stamp) + ',' + str(lat) + ',' +\
+                               str(lon)
                 
                 yield user_id, value_string
 

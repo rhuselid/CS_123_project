@@ -137,47 +137,58 @@ def make_all_user_time_series(user_time_series_file):
     Inputs:
         Output file from MR_time_series.py. In our case it was:
         CS_123_project/code/may31/part-00000
+        outputted: master_small.txt
 
     Returns: 
         Dictionary of each user_id as key and with their sentiment scores 
         and date pairing is as a tuple (representing time that sentiment was
         expressed)
     '''    
-    num_user_fields = 4 ## Represents number of features included from the
+    num_user_fields = 6 ## Represents number of features included from the
                         ## map reduce output. num_user_fields is currently
                         ## == 4 due to 3 fields being included and a string
                         ## comma that comes with the map reduce output
     users = {}
 
     with open(user_time_series_file) as f:
+        tmp = 0
         for line in f:
 
-                line2 = ''.join(line.split())
-                line2 = line2.split(",")
+            line2 = ''.join(line.split())
+            line2 = line2.split(",")
 
-                user_id = int(line2[0][:-1])
+            user_id = int(line2[0][:-1])
+
+            if user_id not in users:
                 users[user_id] = []
+            
+            line_length = len(line2)
+
+            ## Iterate through the line that is now a list split by
+            ## delimiters
+            # tmp += 1
+            # if tmp == 3:
+            #     return users
+
+            for i in range(num_user_fields-1, line_length,
+                           num_user_fields):
+                    
+                sentiment_score = float(line2[i-3])
+                time_stamp = float(line2[i-2])
+
+                datetime_obj = datetime.fromtimestamp(time_stamp, 
+                                                      tz=timezone.utc)
+                datetime_obj = datetime_obj.replace(hour=0, minute=0,
+                                                    second=0,
+                                                    tzinfo=None)
+                string_date = datetime_obj.strftime("%d %b %Y")
+
+                lat = float(line2[i-1])
+                lon = float(line2[i][:-1])
                 
-                line_length = len(line2)
-
-                ## Iterate through the line that is now a list split by
-                ## delimiters
-                for i in range(line_length):
-
-                    if i % num_user_fields == 3:
-                        
-                        time_stamp = float(line2[i][:-1])
-                        sentiment_score = float(line2[i-1])
-                        datetime_obj = datetime.fromtimestamp(time_stamp, 
-                                                              tz=timezone.utc)
-                        datetime_obj = datetime_obj.replace(hour=0, minute=0,
-                                                            second=0,
-                                                            tzinfo=None)
-                        string_date = datetime_obj.strftime("%d %b %Y")
-                        
-                        ## Add relevant objects to users dictionary
-                        users[user_id].append((sentiment_score, time_stamp,
-                                                                string_date))
+                ## Add relevant objects to users dictionary
+                users[user_id].append((sentiment_score, time_stamp,
+                                       string_date, lat, lon))
     return users
 
 def aggregate_sentiment_index(users_per_day, user_time_series_file):
@@ -199,7 +210,7 @@ def aggregate_sentiment_index(users_per_day, user_time_series_file):
         and date pairing is as a tuple (representing time that sentiment was
         expressed)
     '''
-    num_user_fields = 4 ## Represents number of features included from the
+    num_user_fields = 6 ## Represents number of features included from the
                         ## map reduce output. num_user_fields is currently
                         ## == 4 due to 3 fields being included and a string
                         ## comma that comes with the map reduce output
@@ -213,43 +224,53 @@ def aggregate_sentiment_index(users_per_day, user_time_series_file):
     with open(user_time_series_file) as f:
         for line in f:
                 
-                ## Stopping condition
-                if days_accounted_for == {}:
-                    return_d = aggregation_helper(users)
-                    return return_d
-                
-                line2 = ''.join(line.split())
-                line2 = line2.split(",")
+            ## Stopping condition
+            if days_accounted_for == {}:
+                return_d = aggregation_helper(users)
+                return return_d
+            
+            line2 = ''.join(line.split())
+            line2 = line2.split(",")
 
-                user_id = int(line2[0][:-1])
-                users[user_id] = []
-                
-                line_length = len(line2)
+            user_id = int(line2[0][:-1])
+            users[user_id] = []
+            
+            line_length = len(line2)
 
-                for i in range(line_length):
-                    if i % num_user_fields == 3:
-                        
-                        time_stamp = float(line2[i][:-1])
-                        sentiment_score = float(line2[i-1])
-                        datetime_obj = datetime.fromtimestamp(time_stamp,
-                                                              tz=timezone.utc)
-                        datetime_obj = datetime_obj.replace(hour=0, minute=0,
-                                                            second=0,
-                                                            tzinfo=None)
-                        string_date = datetime_obj.strftime("%d %b %Y")
+            # print(days_accounted_for)
 
-                        users[user_id].append((sentiment_score, time_stamp,
-                                                                string_date))
+            for i in range(num_user_fields-1, line_length,
+                           num_user_fields):
+                    
+                sentiment_score = float(line2[i-3])
+                time_stamp = float(line2[i-2])
 
-                if d[datetime_obj] not in days_accounted_for:
-                    continue
-                if days_accounted_for[d[datetime_obj]] <= 0:
-                    del days_accounted_for[d[datetime_obj]]
-                    continue
+                datetime_obj = datetime.fromtimestamp(time_stamp, 
+                                                      tz=timezone.utc)
+                datetime_obj = datetime_obj.replace(hour=0, minute=0,
+                                                    second=0,
+                                                    tzinfo=None)
+                string_date = datetime_obj.strftime("%d %b %Y")
 
-                ## Account for each day by subtracting 1 from a
-                ## predetermined minimum (chosen through users_per_day input)
-                days_accounted_for[d[datetime_obj]] -= 1
+                lat = float(line2[i-1])
+                lon = float(line2[i][:-1])
+
+                ## Add relevant objects to users dictionary
+                users[user_id].append((sentiment_score, time_stamp,
+                                       string_date, lat, lon))
+
+            if d[datetime_obj] not in days_accounted_for:
+                # print(d[datetime_obj])
+                # print('met cond 1')
+                continue
+            if days_accounted_for[d[datetime_obj]] <= 0:
+                del days_accounted_for[d[datetime_obj]]
+                # print('met cond 2')
+                continue
+
+            ## Account for each day by subtracting 1 from a
+            ## predetermined minimum (chosen through users_per_day input)
+            days_accounted_for[d[datetime_obj]] -= 1
 
 def write_user_betas_to_file(users_time_series_file, outfile_name):
     '''
@@ -274,12 +295,12 @@ def write_user_betas_to_file(users_time_series_file, outfile_name):
     index_dict = aggregate_sentiment_index(min_users_per_day,
                                            users_time_series_file)
     all_users_time_series = make_all_user_time_series(users_time_series_file)
-    user_betas = get_all_betas(all_users_time_series, index_dict)
+    user_betas = get_all_betas_and_locations(all_users_time_series, index_dict)
 
     with open(outfile_name, 'w') as f:
         f.write('\n'.join(json.dumps(i) for i in user_betas) + '\n')
     
-def get_all_betas(users_time_series_dict, index_dict):
+def get_all_betas_and_locations(users_time_series_dict, index_dict):
     '''
     Purpose:
         Map each user to their beta value and collect it all in a list of
@@ -294,14 +315,16 @@ def get_all_betas(users_time_series_dict, index_dict):
     Returns: 
         List of dictionaries of form {users: beta}
     '''
-    users_beta = []
+    users_beta_and_locations = []
 
     for user_id in users_time_series_dict:
         beta = calc_beta(users_time_series_dict, user_id, index_dict)
-        d = {user_id: beta}
-        users_beta.append(d)
+        lats = [x[3] for x in users_time_series_dict[user_id]]
+        lons = [x[4] for x in users_time_series_dict[user_id]]
+        d = {user_id: {'beta': beta, 'lats': lats, 'lons': lons}} 
+        users_beta_and_locations.append(d)
 
-    return users_beta
+    return users_beta_and_locations
 
 def calc_beta(users_time_series_dict, user_id, index_dict):
     '''
@@ -324,6 +347,7 @@ def calc_beta(users_time_series_dict, user_id, index_dict):
     for data_point in user_time_series:
         user_sentiment = data_point[0]
         user_date = data_point[2]
+        # print(index_dict)
         index_sentiment = index_dict[user_date]
 
         index_sentiments.append(index_sentiment)
