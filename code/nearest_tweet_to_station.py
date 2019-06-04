@@ -71,32 +71,25 @@ class NearestNeighbor(MRJob):
         self.temp_data.columns=col_names
 
     def reducer(self, date, tweets):
-        # min_dist = 1000000
-        temp = 0
-        store = []
-        # yield len(self.temp_data), date
         for tweet in tweets:
             min_dist = 1000000
+            tweet_lat, tweet_long = tweet["coordinates"]["coordinates"]
             for data in self.temp_data.iterrows():
                 temp_date = str(data[1]["date"])
-                # yield temp_date, date
                 if temp_date == date:
                     temp_lat = data[1]["lat"]
                     temp_long = data[1]["long"]
-                    tweet_lat, tweet_long = tweet["coordinates"]["coordinates"]
+                    # tweet_lat, tweet_long = tweet["coordinates"]["coordinates"]
                     distance = np.sqrt((temp_lat-tweet_lat)**2 + (temp_long-tweet_long)**2)
+                    temp = data[1]["temp"]
+                    # name = data[1]["location"]
                     if distance < min_dist:
-                        temp = data[1]["temp"]
+                        best_temp = temp
+                        # best_name = name
                         min_dist = distance
-                        # yield min_dist, 1
-            yield temp, tweet["sentiment"] 
-            # store.append((temp, ))
+            yield best_temp, tweet["sentiment"]
+            # tweet["sentiment"]
 
-        #             else:
-        #                 passa
-        #         else:
-        #             pass
-        # yield temp, tweet["sentiment"]
 
             # tweet_lat, tweet_long = tweet["coordinates"]["coordinates"]
 

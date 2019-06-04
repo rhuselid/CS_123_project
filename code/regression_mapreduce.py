@@ -1,6 +1,5 @@
 # import os
 # os.system('sudo pip3 install numpy')
-# os.system('sudo pip3 install random')
 
 import json
 # import numpy as np
@@ -9,17 +8,18 @@ import random
 # from datetime import datetime
 # from dateutil.parser import parse
 
-# inspiration on how to approach mapreduce linear regression comes from (specifically in the yield structure):
+# inspiration on how to approach mapreduce linear regression comes from 
+#    (specifically in the yield structure):
 # https://github.com/AmazaspShumik/MapReduce-Machine-Learning/blob/master/Linear%20Regression%20MapReduce/LinearRegressionTS.py
 
+# Important Note: this file is an MapReduce implimentation of regression 
+#                   with just lists (no numpy). This was necessary because
+#                   of import permission issues running in a cluster.
+
+
 class LinearRegression(MRJob):
-    # Important Note: this file is an MapReduce implimentation of regression 
-    #                   with just lists (no numpy). This was necessary because
-    #                   of import permission issues running in a cluster.
-
-
-    # this mapreduce code is written to run a multiple linear regression in parallel 
-    # and is intended to be run on a cluster.
+    # this mapreduce code is written to run a multiple linear regression in 
+    # parallel and is intended to be run on a cluster.
 
     # def __init__(self, *args, **kwargs):
     #     super(LinearRegression, self).__init__(*args, **kwargs)
@@ -29,22 +29,15 @@ class LinearRegression(MRJob):
     def mapper(self, _, l):
         line = json.loads(l)
 
-        # dependent variable (compound sentiment--positive values are positive in senti+ment)
+        # dependent variable (compound sentiment--positive values are positive in sentiment)
         sentiment = line['sentiment']
-        # # sentiment = random.randint(1,1000)
 
         # # independent variables
         constant = 1
 
         # # these lines are fake inputs for testing purposes until the twitter-weather merge is complete
         temp = random.randint(1,1000)
-        # temp = 1
-        # season_avg = 1.5
-        # relative_change = temp - season_avg
-
         # temp = line['temp']
-        # season_avg = line['season_avg']
-        # relative_change = temp - season_avg
 
         ############################################################################
         # NOTE: we created a number of control variables (commented out below), but# 
@@ -108,9 +101,6 @@ class LinearRegression(MRJob):
         for x3 in X:
             x_transpose_y.append(x3 * sentiment)
 
-        # print('out prod', outer_product, 'np version', np.outer(X_n, X_n))
-        # print('xty', x_transpose_y, 'np version', X_n.T * Y_n)
-        # print('xty', x_transpose_y)
         # x_transpose_x = np.outer(X, X)  # 3 x 3 matrix
         # x_transpose_y = X.T * Y         # 1 x 3 array
 
@@ -121,9 +111,7 @@ class LinearRegression(MRJob):
         yield None, ('xty', x_transpose_y)
 
 
-    def combiner(self, _, matrices):
-        # print('reducing')
-        
+    def combiner(self, _, matrices):        
         sample_size = 0
         x_transpose_x = [[0,0], [0,0]]
         x_transpose_y = [0] * 2
@@ -147,9 +135,6 @@ class LinearRegression(MRJob):
         # sample_size = 0
         # x_transpose_x = [[0] * 2] * 2
         # x_transpose_y = [0] * 2
-        # print(list(matrices))
-        # # print('xtx', x_transpose_x)
-        # # print('xty', x_transpose_y)
 
         # for mat in matrices:
         #     sample_size += 1
@@ -165,11 +150,6 @@ class LinearRegression(MRJob):
         #             # print(x_transpose_y)
         #             x_transpose_y[i] += val
         
-        # print('list xtx: ', x_transpose_x, 'np version', x_transpose_xn)
-        # print('list xty: ', x_transpose_y, 'np version', x_transpose_yn)
-        # # print(list((x_transpose_x.tolist(), x_transpose_y.tolist(), sample_size)))
-        # # yield 1, list((x_transpose_x.tolist(), x_transpose_y.tolist(), sample_size))
-
         # yield None, ('xtx', x_transpose_x.tolist())
         # yield None, ('xty', x_transpose_y.tolist())
         # yield None, ('sample_size', sample_size)
