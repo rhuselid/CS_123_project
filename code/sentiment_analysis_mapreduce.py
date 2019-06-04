@@ -6,12 +6,17 @@
 #       final output it was shown to work with a smaller json file locally
 
 #################################################################################
+import os 
+os.system('sudo pip3 install nltk')
+
 from mrjob.job import MRJob
 import json
 import nltk
 import re
 from nltk.corpus import stopwords
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from google.oauth2 import service_account
+
 
 # nltk.download('stopwords')
 # nltk.download('vader_lexicon')

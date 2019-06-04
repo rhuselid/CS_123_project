@@ -120,15 +120,16 @@ class LinearRegression(MRJob):
         yield None, ('xtx', outer_product)
         yield None, ('xty', x_transpose_y)
 
-        # yield None, list(line) 
 
     def combiner(self, _, matrices):
         # print('reducing')
+        
         sample_size = 0
-        # x_transpose_xn = np.zeros([2,2]) 
-        # x_transpose_yn = np.zeros(2)
         x_transpose_x = [[0,0], [0,0]]
         x_transpose_y = [0] * 2
+
+        # x_transpose_xn = np.zeros([2,2]) 
+        # x_transpose_yn = np.zeros(2)
 
         for mat in matrices:
             sample_size += 1
@@ -141,7 +142,6 @@ class LinearRegression(MRJob):
             elif mat[0] == 'xty':
                 # x_transpose_yn += np.array(mat[1])
                 for i, val in enumerate(mat[1]):
-                    # print(x_transpose_y)
                     x_transpose_y[i] += val
 
         # sample_size = 0
@@ -174,7 +174,6 @@ class LinearRegression(MRJob):
         # yield None, ('xty', x_transpose_y.tolist())
         # yield None, ('sample_size', sample_size)
 
-
         yield None, ('xtx', x_transpose_x)
         yield None, ('xty', x_transpose_y)
         yield None, ('sample_size', sample_size)
@@ -182,10 +181,10 @@ class LinearRegression(MRJob):
 
     def reducer(self, _, matrices):
         sample_size = 0
-        # x_transpose_xn = np.zeros([2,2]) 
-        # x_transpose_yn = np.zeros(2)
         x_transpose_x = [[0,0], [0,0]]
         x_transpose_y = [0] * 2
+        # x_transpose_xn = np.zeros([2,2]) 
+        # x_transpose_yn = np.zeros(2)
 
         for mat in matrices:            
             if mat[0] == 'xtx':
@@ -196,7 +195,6 @@ class LinearRegression(MRJob):
             elif mat[0] == 'xty':
                 # x_transpose_yn += np.array(mat[1])
                 for i, val in enumerate(mat[1]):
-                    # print(x_transpose_y)
                     x_transpose_y[i] += val
             else:
                 sample_size += mat[1]
@@ -207,13 +205,9 @@ class LinearRegression(MRJob):
         # sample_size = 0
         # x_transpose_x = [[0,0], [0,0]]
         # x_transpose_y = [0] * 2
-        # # print(x_transpose_x)
-        # # print(x_transpose_x)
-        # print('hi')
 
         # for mat in matrices:
-        #     sample_size += 1
-            
+        #     sample_size += 1      
         #     if mat[0] == 'xtx':
         #         # print('heres xtx', mat[1])
         #         for ir, row in enumerate(mat[1]):
