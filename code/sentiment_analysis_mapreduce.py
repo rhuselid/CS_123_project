@@ -15,12 +15,7 @@ import nltk
 import re
 from nltk.corpus import stopwords
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
-from google.oauth2 import service_account
-
-
-# nltk.download('stopwords')
-# nltk.download('vader_lexicon')
-
+# from google.oauth2 import service_account
 
 # help from: https://www.datacamp.com/community/tutorials/text-analytics-beginners-nltk
 # and https://opensourceforu.com/2016/12/analysing-sentiments-nltk/
