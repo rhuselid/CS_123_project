@@ -11,7 +11,7 @@ class CompareUsers(MRJob):
         user_id = list(line.keys())[0]
         beta = line[user_id]
 
-        with open("/home/student/CS_123_project/code/all_user_betas_copy.json") as f:
+        with open("all_user_betas_small_copy.json") as f:
             for line2 in f:
                 line2 = json.loads(line2)
 
@@ -24,14 +24,8 @@ class CompareUsers(MRJob):
                     difference = abs(beta - beta2)
 
                     if difference < 0.05:
-                        print(difference)
-                        print("Found small beta")
                     
                         yield user_id, user_id2
-
-                
-
-
 
 
     # def combiner(self, location, sentiment):
