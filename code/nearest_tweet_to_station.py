@@ -48,41 +48,137 @@ class NearestNeighbor(MRJob):
 # print(tweet_data)
 # json.load("sentiment_analyzed.json")
 # class NearestNeighbor(MRJob):
-	# with open("US_temperature.json") as f:
- #   	>insert filework
+    # with open("US_temperature.json") as temperature_data:
+        # for data in temperature_data:
+        # temp_data = json.load(temperature_data)
+        # print(temperature_data)
     def mapper(self, _, line):
         row = json.loads(line)
+        date = row["created_at"]
+        month = date[4:7]
+        month_num = month_dictionary[month] 
+        date = date[-4:] + month_num + date[8:10]
+        yield date, row
+
+    def reducer_init(self):
+        '''
+ 
+        '''
+        # self.temperature_data = json.loads(temperature)
+
+        self.temp_data = pd.read_csv(r"October_temperature.csv")
+        col_names = ["empty1","station_id", "date","temp", "lat", "long", "location", "month"]
+        self.temp_data.columns=col_names
+
+    def reducer(self, date, tweets):
+        # min_dist = 1000000
+        temp = 0
         store = []
-        # yield len(row), 1
-        if len(row) == 8:
-            tweet_latitude, tweet_longitude = row["coordinates"]["coordinates"]
-            sentiment = row["sentiment"]
-            store.extend((tweet_latitude, tweet_longitude, sentiment))
-            date = row["created_at"]
-            month = date[4:7]
-            month_num = month_dictionary[month] 
-            date = date[-4:] + month_num + date[8:10]
-        else: 
-            date = row["date"]
-            weather_latitude = row["latitude"]
-            weather_longitude = row["longitude"]
-            temperature = row["average_temp"]
-            location = row["location"]
-            store.extend((weather_latitude, weather_longitude, temperature, location))
-        
-        yield date, store
+        # yield len(self.temp_data), date
+        for tweet in tweets:
+            min_dist = 1000000
+            for data in self.temp_data.iterrows():
+                temp_date = str(data[1]["date"])
+                # yield temp_date, date
+                if temp_date == date:
+                    temp_lat = data[1]["lat"]
+                    temp_long = data[1]["long"]
+                    tweet_lat, tweet_long = tweet["coordinates"]["coordinates"]
+                    distance = np.sqrt((temp_lat-tweet_lat)**2 + (temp_long-tweet_long)**2)
+                    if distance < min_dist:
+                        temp = data[1]["temp"]
+                        min_dist = distance
+                        # yield min_dist, 1
+            yield temp, tweet["sentiment"] 
+            # store.append((temp, ))
 
-    def combiner(self, date, values):
-        data1 = []
-        data2 = []
-        value = list(values)
-        for data in value:
-            if len(data) == 3:
-                data1.append(data)
-            else:
-                data2.append(data)
+        #             else:
+        #                 passa
+        #         else:
+        #             pass
+        # yield temp, tweet["sentiment"]
 
-        yield len(data1), len(data2)
+            # tweet_lat, tweet_long = tweet["coordinates"]["coordinates"]
+
+            # yield lat, date
+        # yield date
+            # yield row["sentiment"], type(row)
+        # for data in self.temp_data.iterrows():
+        #     temp_date = data[1]["date"]
+        #     yield rows, type(rows)
+            # if temp_date == date:
+            #     tweet_latitude = rows
+            #     tweet_longitude
+            #     yield True, 1
+            # yield temp_date, type(temp_date)
+            # if data["date"] == date:
+            #     yield 1,2 
+        # yield self.temp_data, 1
+        # yield self.temp_data, 1
+        # for i, row in self.temp_data.iterrows():
+        #     yield row, i
+        #     yield data[2], 1
+            # yield data, 1
+            # yield min_dist, 1
+            # if data[2] == date:
+            #     tweet_latitude, tweet_longitude = row["coordinates"]["coordinates"]
+            #     yield tweet_latitude, tweet_longitude
+            # else:
+            #     pass
+        #         weather_latitude = data["lat"]
+        #         weather_longitude = data["long"]
+        #         distance = np.sqrt((weather_latitude-tweet_latitude)^2 - (weather_longitude-tweet_longitude)^2)
+        #         if distance < min_dist:
+        #             temp = data["temp"]
+        #             min_dist = distance
+        #         else:
+        #             pass
+        #     else: 
+        #         pass
+        # yield temp, 1
+
+
+
+
+    #     yield self.data["date"], date
+      # for data in self.data:
+        #     yield data[, 1
+            # data = json.load(temperature_data)
+            # if date == data["date"]:
+            #     yield 3, 1
+
+	        # store = []
+	        # yield len(row), 1
+	        # if len(row) == 8:
+            # tweet_latitude, tweet_longitude = row["coordinates"]["coordinates"]
+            # sentiment = row["sentiment"]
+            # store.extend((tweet_latitude, tweet_longitude, sentiment))
+            # date = row["created_at"]
+            # month = date[4:7]
+            # month_num = month_dictionary[month] 
+            # date = date[-4:] + month_num + date[8:10]
+            # yield date, row
+	        # else: 
+	        #     date = row["date"]
+	        #     weather_latitude = row["latitude"]
+	        #     weather_longitude = row["longitude"]
+	        #     temperature = row["average_temp"]
+	        #     location = row["location"]
+	        #     store.extend((weather_latitude, weather_longitude, temperature, location))
+	        
+	        # yield date, store
+
+	    # def combiner(self, date, values):
+	    #     data1 = []
+	    #     data2 = []
+	    #     value = list(values)
+	    #     for data in value:
+	    #         if len(data) == 3:
+	    #             data1.append(data)
+	    #         else:
+	    #             data2.append(data)
+
+	    #     yield len(data1), len(data2)
 
         	# if len(tweet) == 0:
         	# 	pass

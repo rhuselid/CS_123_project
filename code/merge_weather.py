@@ -2,6 +2,7 @@
 import csv
 import pandas as pd
 import json
+import numpy as np
 
 top = 49.3457868 # north lat
 bottom =  24.7433195 # south lat
@@ -30,17 +31,23 @@ US_temp_df = temp_df_merge[(temp_df_merge['latitude'] > bottom) & (temp_df_merge
 US_temp_df = US_temp_df[(US_temp_df['longitude'] > left) & (US_temp_df['longitude'] < right)]
 
 
-# print(US_temp_df["date"])
+US_temp_df["month"] = np.floor_divide(np.remainder(US_temp_df["date"], 10000), 100)
+df_October = US_temp_df.loc[US_temp_df["month"] == 10]
+df_October.to_csv("October_temperature.csv")
+# 
+# print(US_temp_df["date"][4:6])
+
 # print(US_temp_df)
-# jsonfilepath = "US_temperature.json"
-jsonfile = open('US_temperature.json', 'w')
-US_temp_df.to_csv("US_temperature.csv")
-data = {}
-with open("US_temperature.csv") as csvFile:
-	csvReader = csv.DictReader(csvFile)
-	for csvRow in csvReader:
-		json.dump(csvRow, jsonfile)
-		jsonfile.write('\n')
+# # jsonfilepath = "US_temperature.json"
+# jsonfile = open('US_temperature.json', 'w')
+# US_temp_df.to_csv("US_temperature.csv")
+
+# # data = {}
+# with open("US_temperature.csv") as csvFile:
+# 	csvReader = csv.DictReader(csvFile)
+# 	for csvRow in csvReader:
+# 		json.dump(csvRow, jsonfile)
+# 		jsonfile.write('\n')
 		# json.dump(csvRow, )
 		# stationid = csvRow["stationid"]
 		# date = csvRow["date"]
