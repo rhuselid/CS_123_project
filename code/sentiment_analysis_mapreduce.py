@@ -6,8 +6,8 @@
 #       final output it was shown to work with a smaller json file locally
 
 #################################################################################
-import os 
-os.system('sudo pip3 install nltk')
+# import os 
+# os.system('sudo pip3 install nltk')
 
 from mrjob.job import MRJob
 import json
