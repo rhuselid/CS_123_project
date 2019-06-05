@@ -15,7 +15,7 @@ class CompareUsers(MRJob):
         user_id = list(line.keys())[0]
         beta = line[user_id]['beta']
 
-        with open("users_final_copy.json") as f:
+        with open("/home/student/CS_123_project/code/users_final_small_copy.json") as f:
             for line2 in f:
                 line2 = json.loads(line2)
 
@@ -43,7 +43,7 @@ class CompareUsers(MRJob):
         to user1_id in terms of sentiment volatility (beta)
         '''
         
-        similarity_list = list(similarity_list)[0]
+        similarity_list = list(similarity_list)
 
         yield user1_id, similarity_list
 
