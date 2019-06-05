@@ -16,6 +16,16 @@ Sentiment Analysis Mapreduce
 - changed the MR code to yield only primative data types
 - added another file to process the output from the code (process_sentiment_analysis_MR.py)
 
+Temperature and Sentiment MapReduce
+- built the MR to accurately place the temperature of the closest station to the sentiment of each tweet (which was originally done in pandas)
+- was able to output to a txt file 
+- changed MR code to yield a dictionary rather than just the temp and sentiment
+- Added an init function in the combiner which allowed access to the Temperature csv 
+
+
+Merge Weather and Station:
+- fixed the temperature data by dividing the originally temperature by 10
+- specified the month of October to accurately match the tweet data
 
 Minor Things
 - added docstrings to functions
