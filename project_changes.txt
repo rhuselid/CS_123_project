@@ -30,6 +30,13 @@ Merge Weather and Station:
 Time series mapreduce
 - added a mapreduce script to deal with compairing the similarity of each user to each user
 
+Visualizations: 
+- Added a script to generate matplot figures for each user against users of similar sentiment 
+- (Attempted) to plot average sentiment of each region on a matplot figure but was not able to complete in time. 
+
+Clustering MapReduce Mapreduce
+- Added a TopN Mapreduce implementation that finds the top N regions with greatest sentiment. 
+
 Minor Things
 - added docstrings to functions
 - Removed print statements within mapreduce code
