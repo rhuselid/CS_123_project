@@ -18,6 +18,7 @@ Sentiment Analysis Mapreduce
 
 
 Minor Things
+- added docstrings to functions
 - Removed print statements within mapreduce code
 - removed unnecessary imports (e.g. removing MRJob import from the top of sentiment_analysis.py which caused some confusion)
 
