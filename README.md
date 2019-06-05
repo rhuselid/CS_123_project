@@ -11,4 +11,6 @@ Our output from comparing each user's sentiment volatility measure with each oth
 
   Files related to time series analysis: time_series.py - helper functions and user beta calculations, MR_time_series.py - map reduce from a twitter json file to map users onto a series of their tweet sentiments over time, MR_Compare_Users.py - map reduce to compare each user's sentiment volatility measure with every other user's sentiment volatility measure, may31/part-00000 - output from MR_time_series.py used as inputs in time_series.py to calculate beta values (sentiment volatility measures).
 
+Access the cluster comparison file here:
+https://drive.google.com/file/d/1VuGUSKqXPMIv2tmHxvR2ThjarXIpKalO/view?usp=sharing
 
