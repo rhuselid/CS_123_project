@@ -88,7 +88,15 @@ class NearestNeighbor(MRJob):
                         best_temp = temp
                         # best_name = name
                         min_dist = distance
-            yield best_temp, tweet["sentiment"]
+            d = {}
+            d['temp'] = best_temp
+            d['sentiment'] = tweet['sentiment']
+
+            str_dict = str(d)
+            str_dict += '\n'
+            # add a newline to make it a file where dicts are lines
+
+            yield None, str_dict
 
     # def reducer_init(self):
     #     self.regression_data = {}
