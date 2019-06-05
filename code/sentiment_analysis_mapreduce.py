@@ -1,11 +1,10 @@
-##################################################################################
+##############################################################################
 
-# Note: this file is depreciated (i.e. was not used to produce the resulting json)
-#       it is fairly similar to the analyze_sentiment.py version of the file except 
-#       this is intented to work with mapreduce. While it was not used to produce the 
-#       final output it was shown to work with a smaller json file locally
+# Note: This file was not used to produce the json we used, but it 
+#       works and has been tested (leads to similar output as the file 
+#       meant to be run locally.
 
-#################################################################################
+##############################################################################
 # import os 
 # os.system('sudo pip3 install nltk')
 
@@ -21,14 +20,16 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 # and https://opensourceforu.com/2016/12/analysing-sentiments-nltk/
 
 class AnalyzeSentiment(MRJob):
-    # the purpose of this code is to take a json and read is to reduce a large dataset of 
-    # tweets into information about sentiment and attached to geo-coordinates.
+    '''
+    the purpose of this code is to take a json and read is to reduce a large
+    dataset of tweets into information about sentiment and attached to geo-coordinates.
 
-    # we tested efficiency of removing stop words and text alone (with the 30.json file)
-    #     removing stop words:   0m38.099s
-    #     no removed stop words: 0m36.641s
+    we tested efficiency of removing stop words and text alone (with the 30.json file)
+        removing stop words:   0m38.099s
+        no removed stop words: 0m36.641s
 
-    # since this did not significantly change the run time, we removed stop words in tweets.
+    since this did not significantly change the run time, we removed stop words in tweets.
+    '''
 
     def __init__(self, *args, **kwargs):
         super(AnalyzeSentiment, self).__init__(*args, **kwargs)

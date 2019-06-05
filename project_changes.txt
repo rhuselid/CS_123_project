@@ -22,10 +22,13 @@ Temperature and Sentiment MapReduce
 - changed MR code to yield a dictionary rather than just the temp and sentiment
 - Added an init function in the combiner which allowed access to the Temperature csv 
 
-
 Merge Weather and Station:
 - fixed the temperature data by dividing the originally temperature by 10
 - specified the month of October to accurately match the tweet data
+- merge now works with mapreduce between the two datasets (a nearest neighbor approach)
+
+Time series mapreduce
+- added a mapreduce script to deal with compairing the similarity of each user to each user
 
 Minor Things
 - added docstrings to functions
