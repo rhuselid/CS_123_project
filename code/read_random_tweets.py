@@ -10,7 +10,6 @@ with open("sentiment_analyzed.json") as f:
 		line = json.loads(line)
 		json_list.append(line)
 	list_of_random_tweets = random.sample(json_list, 500)
-	print(len(list_of_random_tweets))
 
-with open("random_tweets.json", 'w') as f:
+with open("datasets/random_tweets.json", 'w') as f:
     f.write('\n'.join(json.dumps(i) for i in list_of_random_tweets) + '\n')
