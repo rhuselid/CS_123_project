@@ -52,6 +52,7 @@ class NearestNeighbor(MRJob):
         # for data in temperature_data:
         # temp_data = json.load(temperature_data)
         # print(temperature_data)
+
     def mapper(self, _, line):
         row = json.loads(line)
         date = row["created_at"]
@@ -60,7 +61,7 @@ class NearestNeighbor(MRJob):
         date = date[-4:] + month_num + date[8:10]
         yield date, row
 
-    def reducer_init(self):
+    def combiner_init(self):
         '''
  
         '''
@@ -70,7 +71,7 @@ class NearestNeighbor(MRJob):
         col_names = ["empty1","station_id", "date","temp", "lat", "long", "location", "month"]
         self.temp_data.columns=col_names
 
-    def reducer(self, date, tweets):
+    def combiner(self, date, tweets):
         for tweet in tweets:
             min_dist = 1000000
             tweet_lat, tweet_long = tweet["coordinates"]["coordinates"]
@@ -88,6 +89,15 @@ class NearestNeighbor(MRJob):
                         # best_name = name
                         min_dist = distance
             yield best_temp, tweet["sentiment"]
+
+    # def reducer_init(self):
+    #     self.regression_data = {}
+
+    def reducer(self, temp, sentiment):
+        
+        
+
+
             # tweet["sentiment"]
 
 
