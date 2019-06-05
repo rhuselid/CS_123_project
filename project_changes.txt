@@ -28,7 +28,7 @@ Merge Weather and Station:
 - merge now works with mapreduce between the two datasets (a nearest neighbor approach)
 
 Time series mapreduce
-- added a mapreduce script to deal with compairing the similarity of each user to each user
+- added a mapreduce script to deal with compairing the similarity of each user to each user (comparing their similarity to the overall national trends in sentiment)
 
 Visualizations: 
 - Added a script to generate matplot figures for each user against users of similar sentiment 
