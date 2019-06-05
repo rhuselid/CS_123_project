@@ -37,79 +37,82 @@ class LinearRegression(MRJob):
 
         # dependent variable
         parsed = line.split(' ')
-        str_sentiment = parsed[1][0:len(parsed[1]) - 1]
+        str_sentiment = parsed[3].split('}')[0]
         sentiment = float(str_sentiment)
-
+        
         # independent variables
         constant = 1
-
-        str_temp = parsed[3].split('}')[0]
+        str_temp = parsed[1][0:len(parsed[1]) - 1]
         temp = float(str_temp)
 
-        ############################################################################
-        # NOTE: we created a number of control variables (commented out below), but# 
-        #       they threw off regression results since they lacked significant    #
-        #       variation between the tweets (kept to see thought process and      #
-        #       datetime parsing)                                                  #
-        ############################################################################
+        if temp != 0:
+            # need to filter out these values (they represent nulls with how 
+            # a teammate structured the yield return)
+
+            ############################################################################
+            # NOTE: we created a number of control variables (commented out below), but# 
+            #       they threw off regression results since they lacked significant    #
+            #       variation between the tweets (kept to see thought process and      #
+            #       datetime parsing)                                                  #
+            ############################################################################
 
 
-        # if ('created_at' in line.keys()):
-        #     hour = parse(line['created_at']).hour
-        #     # morning tweet binary variable
-        #     if (hour >= 3) and (hour < 12):
-        #         morning = 1
-        #     else:
-        #         morning = 0
+            # if ('created_at' in line.keys()):
+            #     hour = parse(line['created_at']).hour
+            #     # morning tweet binary variable
+            #     if (hour >= 3) and (hour < 12):
+            #         morning = 1
+            #     else:
+            #         morning = 0
 
-        #     # afternoon tweet binary
-        #     if (hour >= 12) and (hour < 18):
-        #         afternoon = 1
-        #     else:
-        #         afternoon = 0
+            #     # afternoon tweet binary
+            #     if (hour >= 12) and (hour < 18):
+            #         afternoon = 1
+            #     else:
+            #         afternoon = 0
 
-        #     # evening tweet binary
-        #     if (hour >= 18) or (hour < 3):
-        #         evening = 1
-        #     else:
-        #         evening = 0
-        # else:
-        #     # in the case it is missing these still need values to have a consistant-sized matrix
-        #     morning = 0
-        #     afternoon = 0
-        #     evening = 0
+            #     # evening tweet binary
+            #     if (hour >= 18) or (hour < 3):
+            #         evening = 1
+            #     else:
+            #         evening = 0
+            # else:
+            #     # in the case it is missing these still need values to have a consistant-sized matrix
+            #     morning = 0
+            #     afternoon = 0
+            #     evening = 0
 
-        # our file had mostly unpopular tweets so there wasn't enough variance here for this to be predicitive
-        # number of interactions (this may capture if popular tweets are critical of someone else)
-        # interactions = 0
-        # if 'reply_count' in line.keys():
-        #     interactions += int(line['reply_count'])
+            # our file had mostly unpopular tweets so there wasn't enough variance here for this to be predicitive
+            # number of interactions (this may capture if popular tweets are critical of someone else)
+            # interactions = 0
+            # if 'reply_count' in line.keys():
+            #     interactions += int(line['reply_count'])
 
-        # if 'retweet_count' in line.keys():
-        #     interactions += int(line['retweet_count'])
+            # if 'retweet_count' in line.keys():
+            #     interactions += int(line['retweet_count'])
 
-        # if 'favorite_count' in line.keys():
-        #     interactions += int(line['favorite_count'])
+            # if 'favorite_count' in line.keys():
+            #     interactions += int(line['favorite_count'])
 
-        # X_n = np.array([constant, temp])
-        # Y_n = np.array([sentiment])
+            # X_n = np.array([constant, temp])
+            # Y_n = np.array([sentiment])
 
-        X = [constant, temp]
+            X = [constant, temp]
 
-        # compute outer product:
-        outer_product = []
-        for x1 in X:
-            row = []
-            for x2 in X:
-                row.append(x1*x2)
-            outer_product.append(row)
+            # compute outer product:
+            outer_product = []
+            for x1 in X:
+                row = []
+                for x2 in X:
+                    row.append(x1*x2)
+                outer_product.append(row)
 
-        x_transpose_y = []
-        for x3 in X:
-            x_transpose_y.append(x3 * sentiment)
+            x_transpose_y = []
+            for x3 in X:
+                x_transpose_y.append(x3 * sentiment)
 
-        yield None, ('xtx', outer_product)
-        yield None, ('xty', x_transpose_y)
+            yield None, ('xtx', outer_product)
+            yield None, ('xty', x_transpose_y)
 
         # x_transpose_x = np.outer(X, X)  # 3 x 3 matrix
         # x_transpose_y = X.T * Y         # 1 x 3 array
