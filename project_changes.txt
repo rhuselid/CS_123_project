@@ -7,11 +7,11 @@ Regression MapReduce
 	- Now this works on a dataproc cluster
 
 Visualizing time series betas
-- small script to create a scatter plot of of the geographic distribution of beta scores
+- small script to create a scatter plot of of the geographic distribution of beta scores (as well as their values). This showed no clear relationship.
 
 Sentiment Analysis Mapreduce
 - got sentiment analysis mapreduce to work (previously was using a regular python approach reading line by line)
-	- global variables removed, init function added, conf file configured.
+	- global variables removed, init function added, tried many conf file configurations.
 - added process_sentiment_analysis_MR.py, which processes the tweets after the sentiment analysis had been run (note that this is a single computer file)
 - changed the MR code to yield only primative data types
 - added another file to process the output from the code (process_sentiment_analysis_MR.py)
@@ -19,7 +19,7 @@ Sentiment Analysis Mapreduce
 Temperature and Sentiment MapReduce
 - built the MR to accurately place the temperature of the closest station to the sentiment of each tweet (which was originally done in pandas)
 - was able to output to a txt file 
-- changed MR code to yield a dictionary rather than just the temp and sentiment
+- changed MR code to yield a stringified dictionary rather than just the temp and sentiment
 - Added an init function in the combiner which allowed access to the Temperature csv 
 
 Merge Weather and Station:
