@@ -3,14 +3,14 @@ import seaborn as sns
 import json
 import matplotlib.cm as cm
 
-# help from: https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html
-# cmaps = OrderedDict()
-# cmaps['Diverging'] = [
-#             'PiYG', 'PRGn', 'BrBG', 'PuOr', 'RdGy', 'RdBu',
-#             'RdYlBu', 'RdYlGn', 'Spectral', 'coolwarm', 'bwr', 'seismic']
-
 
 def visualize_beta():
+	'''
+	This function takes in the betas (correlation coefficients) from each 
+	user as well as their geographic location for each tweet. Then, a 
+	geographic scatter plot was made were point color was alligned on a scale 
+	related to their beta value.
+	'''
 	x = []
 	y = []
 	z = []
@@ -31,11 +31,12 @@ def visualize_beta():
 
 		plt.scatter(x, y, marker='o', c=z)
 		plt.title("Beta Distribution")
-		plt.xlabel("Lat")
-		plt.ylabel("Long")
+		plt.xlabel("Long")
+		plt.ylabel("Lat")
 		cbar = plt.colorbar()
 		cbar.set_label("Beta Value", labelpad=+1)
 		plt.show()
+
 
 if __name__ == '__main__':
   visualize_beta()

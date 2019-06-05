@@ -14,6 +14,11 @@ WORD_RE = re.compile(r"[\w']+")
 # file is meant to be run on a single machine.
 
 def add_sentiment_key():
+    '''
+    This function does sentiment analysis on each tweet in the json and 
+    compresses the resulting file into just the fields we need for this 
+    analysis.
+    '''
 
     with open('sentiment_and_ids.json', 'w') as outfile:
 

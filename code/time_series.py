@@ -136,8 +136,7 @@ def make_all_user_time_series(user_time_series_file):
 
     Inputs:
         Output file from MR_time_series.py. In our case it was:
-        CS_123_project/code/may31/part-00000
-        outputted: master_small.txt
+        CS_123_project/code/master.txt
 
     Returns: 
         Dictionary of each user_id as key and with their sentiment scores 
@@ -146,7 +145,7 @@ def make_all_user_time_series(user_time_series_file):
     '''    
     num_user_fields = 6 ## Represents number of features included from the
                         ## map reduce output. num_user_fields is currently
-                        ## == 4 due to 3 fields being included and a string
+                        ## == 6 due to 5 fields being included and a string
                         ## comma that comes with the map reduce output
     users = {}
 
@@ -164,11 +163,7 @@ def make_all_user_time_series(user_time_series_file):
             
             line_length = len(line2)
 
-            ## Iterate through the line that is now a list split by
-            ## delimiters
-            # tmp += 1
-            # if tmp == 3:
-            #     return users
+            ## Iterate through the line that is now a list split by delimiters
 
             for i in range(num_user_fields-1, line_length,
                            num_user_fields):
@@ -179,8 +174,7 @@ def make_all_user_time_series(user_time_series_file):
                 datetime_obj = datetime.fromtimestamp(time_stamp, 
                                                       tz=timezone.utc)
                 datetime_obj = datetime_obj.replace(hour=0, minute=0,
-                                                    second=0,
-                                                    tzinfo=None)
+                                                    second=0, tzinfo=None)
                 string_date = datetime_obj.strftime("%d %b %Y")
 
                 lat = float(line2[i-1])
@@ -202,8 +196,8 @@ def aggregate_sentiment_index(users_per_day, user_time_series_file):
         users_per_day (int): minimum number of users per day who would have
         their sentiment score be apart of the average for that day
         
-        user_time_series_file: Output file from running MR_time_series.py.
-        In our case it was: CS_123_project/code/may31/part-00000
+        user_time_series_file: Output file from MR_time_series.py. 
+        In our case it was: CS_123_project/code/master.txt
 
     Returns: 
         Dictionary of each user_id as key and with their sentiment scores 
@@ -212,7 +206,7 @@ def aggregate_sentiment_index(users_per_day, user_time_series_file):
     '''
     num_user_fields = 6 ## Represents number of features included from the
                         ## map reduce output. num_user_fields is currently
-                        ## == 4 due to 3 fields being included and a string
+                        ## == 6 due to 5 fields being included and a string
                         ## comma that comes with the map reduce output
     users = {}
     d, d_inverse = create_date_indexer()
@@ -237,8 +231,6 @@ def aggregate_sentiment_index(users_per_day, user_time_series_file):
             
             line_length = len(line2)
 
-            # print(days_accounted_for)
-
             for i in range(num_user_fields-1, line_length,
                            num_user_fields):
                     
@@ -260,12 +252,10 @@ def aggregate_sentiment_index(users_per_day, user_time_series_file):
                                        string_date, lat, lon))
 
             if d[datetime_obj] not in days_accounted_for:
-                # print(d[datetime_obj])
-                # print('met cond 1')
                 continue
             if days_accounted_for[d[datetime_obj]] <= 0:
                 del days_accounted_for[d[datetime_obj]]
-                # print('met cond 2')
+
                 continue
 
             ## Account for each day by subtracting 1 from a
@@ -347,7 +337,6 @@ def calc_beta(users_time_series_dict, user_id, index_dict):
     for data_point in user_time_series:
         user_sentiment = data_point[0]
         user_date = data_point[2]
-        # print(index_dict)
         index_sentiment = index_dict[user_date]
 
         index_sentiments.append(index_sentiment)

@@ -4,6 +4,11 @@
 from ast import literal_eval
 
 def create_new_json():
+	'''
+	This function takes in the file created by sentiment_analysis_mapreduce.py 
+	and processes that into a new file (intended to be run on a single machine)
+	'''
+
 	filename = 'test_output.txt'
 	# this is the name of the file we outputted from the mapreduce job
 

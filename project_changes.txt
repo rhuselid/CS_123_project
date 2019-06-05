@@ -2,18 +2,23 @@
 Changes since Saturday morning deadline
 
 Regression MapReduce
-- this code was almost completly rewritten to not include numpy. This involved a fair amount of linear algebra and iterating over lists of lists. 
+- this code was almost completly rewritten to not include numpy. This involved a fair amount of linear algebra and iterating over lists of lists.
 	- This was necessary because importing/installing numpy lead to permission errors
+	- Now this works on a dataproc cluster
 
+Visualizing time series betas
+- small script to create a scatter plot of of the geographic distribution of beta scores
 
 Sentiment Analysis Mapreduce
 - got sentiment analysis mapreduce to work (previously was using a regular python approach reading line by line)
 	- global variables removed, init function added, conf file configured.
 - added process_sentiment_analysis_MR.py, which processes the tweets after the sentiment analysis had been run (note that this is a single computer file)
 - changed the MR code to yield only primative data types
+- added another file to process the output from the code (process_sentiment_analysis_MR.py)
 
 
 Minor Things
+- added docstrings to functions
 - Removed print statements within mapreduce code
 - removed unnecessary imports (e.g. removing MRJob import from the top of sentiment_analysis.py which caused some confusion)
 
