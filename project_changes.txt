@@ -32,6 +32,8 @@ Time series mapreduce
 
 Visualizations: 
 - Added a script to generate matplot figures for each user against users of similar sentiment 
+	-> Note: The cluster comparison file (which was the source of the data for the visualizations)
+	   was changed over the course of the weekend (required a small tweak with MrJob). 
 - (Attempted) to plot average sentiment of each region on a matplot figure but was not able to complete in time. 
 
 Clustering MapReduce Mapreduce
