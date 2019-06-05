@@ -19,6 +19,10 @@ WORD_RE = re.compile(r"[\w']+")
 class TimeSeries(MRJob):
 
     def mapper(self, _, line):
+        '''
+        Takes lines from tweet jsons. In our case it was 
+        code/sentiment_and_ids.json
+        '''
 
         try:
             line = json.loads(line)
@@ -39,14 +43,16 @@ class TimeSeries(MRJob):
                 time_stamp = datetime.timestamp(time_stamp)
                 tweet_text = line['text']
                 sentiment = line['sentiment']
-                ##_____________________________work after initial submission
                 lat, lon = line['geo']['coordinates']
                 
                 '''
                 Before, this mapper would also score sentiments but then a 
                 teammate decided to filter the corpus of tweets through a
                 script and made the sentiment_and_ids.json file which made
-                this map reduce much faster and simpler for us.
+                this map reduce much faster and simpler for us. Kept the
+                imports in as a comment just to show the code would run
+                if we comment the imports back in and this following chunk
+                back in as well.
                 '''
                 # for word in WORD_RE.findall(tweet_text):
                 #     if word not in stop_words:
@@ -64,6 +70,10 @@ class TimeSeries(MRJob):
 
 
     def reducer(self, users, tweets_sentiments):
+        '''
+        Users: user_ids from users
+        tweets_sentiments: sentiments, timestamps, and locations of users
+        '''
 
         ## Eliminate duplicate tweets through making a set
         tweets_sentiments = list(set(tweets_sentiments))
