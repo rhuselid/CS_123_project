@@ -39,6 +39,10 @@ class AnalyzeSentiment(MRJob):
 
 
     def mapper(self, _, line):
+        '''
+        takes in a line and yeilds a string version of that line with the 
+        sentiment analyzed
+        '''
         line = json.loads(line)
 
         # below filtering already done in when the json was reduced to current size
@@ -79,10 +83,15 @@ class AnalyzeSentiment(MRJob):
             
             yield None, str_new_line
 
-    # def combiner(self, _, new_lines):
-    #     yield None, new_lines
+    # since this is simply yielding the same lines with little / no 
+    # computation in the reducer, there is no combiner function
 
     def reducer(self, _, new_lines):
+        '''
+        Takes in a line and adds a newline to the it (so that the eventual 
+        json is created correctly). This output is piped into a file from the 
+        command line
+        '''
 
         for str_line in new_lines:
             str_line += '\n'

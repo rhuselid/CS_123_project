@@ -2,11 +2,8 @@
 # os.system('sudo pip3 install numpy')
 
 import json
-# import numpy as np
 from mrjob.job import MRJob
 import random
-# from datetime import datetime
-# from dateutil.parser import parse
 
 # inspiration on how to approach mapreduce linear regression comes from 
 #    (specifically in the yield structure):
@@ -18,26 +15,36 @@ import random
 
 
 class LinearRegression(MRJob):
-    # this mapreduce code is written to run a multiple linear regression in 
-    # parallel and is intended to be run on a cluster.
+    '''
+    this mapreduce code is written to run a multiple linear regression in 
+    parallel and is intended to be run on a cluster. The regression is 
+    somewhat hardcoded to a y = b0 + b1*x1 regression, since that is the only
+    context in which this is intended to run. 
+    '''
 
     # def __init__(self, *args, **kwargs):
     #     super(LinearRegression, self).__init__(*args, **kwargs)
     #     os.system('sudo -H pip3 install numpy')
     #     import numpy
 
-    def mapper(self, _, l):
-        line = json.loads(l)
+    def mapper(self, _, line):
+        '''
+        This function parses the input for the values and then constructs 
+        lists of lists representing various matrices needed for linear 
+        regression. Old numpy code included for documentation of previous 
+        solution.
+        '''
 
-        # dependent variable (compound sentiment--positive values are positive in sentiment)
-        sentiment = line['sentiment']
+        # dependent variable
+        parsed = line.split(' ')
+        str_sentiment = parsed[1][0:len(parsed[1]) - 1]
+        sentiment = float(str_sentiment)
 
-        # # independent variables
+        # independent variables
         constant = 1
 
-        # # these lines are fake inputs for testing purposes until the twitter-weather merge is complete
-        temp = random.randint(1,1000)
-        # temp = line['temp']
+        str_temp = parsed[3].split('}')[0]
+        temp = float(str_temp)
 
         ############################################################################
         # NOTE: we created a number of control variables (commented out below), but# 
@@ -101,17 +108,24 @@ class LinearRegression(MRJob):
         for x3 in X:
             x_transpose_y.append(x3 * sentiment)
 
+        yield None, ('xtx', outer_product)
+        yield None, ('xty', x_transpose_y)
+
         # x_transpose_x = np.outer(X, X)  # 3 x 3 matrix
         # x_transpose_y = X.T * Y         # 1 x 3 array
 
         # yield None, ('xtx', x_transpose_x.tolist())
         # yield None, ('xty', x_transpose_y.tolist())
 
-        yield None, ('xtx', outer_product)
-        yield None, ('xty', x_transpose_y)
+        
 
 
-    def combiner(self, _, matrices):        
+    def combiner(self, _, matrices):
+        '''
+        This combiner takes in the yields and uses it to update the matrices, 
+        and then passes these updated matrices and sample size onto the 
+        reducer
+        '''      
         sample_size = 0
         x_transpose_x = [[0,0], [0,0]]
         x_transpose_y = [0] * 2
@@ -160,6 +174,13 @@ class LinearRegression(MRJob):
         
 
     def reducer(self, _, matrices):
+        '''
+        Similar to the combiner, this takes in the intermediary matrices and 
+        increments them into comprehensive matrices for the whole dataset. Then, 
+        these matrices are multiplied, inverted, etc as appropriate to get the 
+        optimal beta coefficients.
+        '''
+
         sample_size = 0
         x_transpose_x = [[0,0], [0,0]]
         x_transpose_y = [0] * 2
@@ -199,7 +220,8 @@ class LinearRegression(MRJob):
         #             x_transpose_y[i] += val
 
         inverse = [[0, 0], [0, 0]]
-        determinate = (x_transpose_x[0][0] * x_transpose_x[1][1] - x_transpose_x[0][1] * x_transpose_x[1][0])
+        determinate = (x_transpose_x[0][0] * x_transpose_x[1][1] 
+                        - x_transpose_x[0][1] * x_transpose_x[1][0])
 
         unnormalized_inv = [[x_transpose_x[1][1], -1 * x_transpose_x[0][1]], 
                             [-1 * x_transpose_x[1][0], x_transpose_x[0][0]]]

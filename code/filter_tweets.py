@@ -11,9 +11,8 @@ right = -66.9513812 # east long
 def save_relevant_tweets():
     '''
     This function reads all.json from disk and saves the relevant parts of it 
-    (i.e. tweets that are geotagged and in the continental US) into a new file.
-
-    To increase computational efficiency for such a large file,  is a limiting 
+    (i.e. tweets that are geotagged, in english, and in the continental US) 
+    into a new file.
     '''
     with open('larger_filtered_tweets.json', 'w') as outfile:
     # creates a new file called filter_tweets.json which will include only the relevant slice
