@@ -30,6 +30,7 @@ temp_df_merge.rename(columns={'quantity':'average_temp'}, inplace=True)
 US_temp_df = temp_df_merge[(temp_df_merge['latitude'] > bottom) & (temp_df_merge['latitude'] < top)]
 US_temp_df = US_temp_df[(US_temp_df['longitude'] > left) & (US_temp_df['longitude'] < right)]
 
+US_temp_df["average_temp"] = (US_temp_df["average_temp"])/10
 
 US_temp_df["month"] = np.floor_divide(np.remainder(US_temp_df["date"], 10000), 100)
 df_October = US_temp_df.loc[US_temp_df["month"] == 10]

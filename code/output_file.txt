@@ -1,0 +1,2 @@
+null	"{'temp': 9.7, 'sentiment': -0.4019}\n"
+null	"{'temp': 6.7, 'sentiment': -0.1531}\n"
