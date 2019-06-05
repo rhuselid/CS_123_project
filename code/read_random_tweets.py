@@ -1,21 +1,12 @@
 import json
 import random
 
-# j = json.loads("sentiment_analyzed.json")
-tweets = []
-for line in open('sentiment_analyzed.json', 'r'):
-    tweets.append(json.loads(line))
+with open("sentiment_analyzed.json") as f:
+	json_list = []
+	for line in f:
+		line = json.loads(line)
+		json_list.append(line)
+	list_of_random_tweets = random.sample(json_list, 500)
 
-
-list_of_random_tweets = random.sample(tweets, 1000)
-
-for tweet in list_of_random_tweets:
-	with open("sample_data.json", "w") as f:
-		f.write('\n'.join(json.dumps(i) for i in data) + '\n')
-
-
-# with open('sentiment_analyzed.json') as f:
-#     d = json.load(f)
-#     print(d)
-# 	    print(d)
-# # 	f.write('\n'.join(json.dumps(i) for i in data) + '\n')
+with open("random_tweets.json", 'w') as f:
+    f.write('\n'.join(json.dumps(i) for i in list_of_random_tweets) + '\n')
